@@ -83,7 +83,7 @@ const staffData = {
       id: 7,
       name: 'Eng. Ndindiriyimana Athanase',
       position: 'Software Development Lead',
-      email: 'robert@mutovutss.edu.rw',
+      email: 'athanase.ndi@mutovutss.edu.rw',
       phone: '+250 788 123 460',
       department: 'ICT Department',
       qualifications: 'PhD Computer Science, M.Sc Software Engineering',
