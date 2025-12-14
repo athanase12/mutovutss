@@ -16,8 +16,11 @@ import Staff from "./pages/Staff";
 import Schedule from "./pages/Schedule";
 import DailyActivities from "./pages/DailyActivities";
 import Timetable from "./pages/Timetable";
+import ClassNotes from "./pages/ClassNotes";
 // Icon Imports
+import { VscRepoFetch } from "react-icons/vsc";
 import { CiMenuBurger, CiHome } from "react-icons/ci";
+import { RiPresentationLine } from "react-icons/ri";
 import { FcAbout } from "react-icons/fc";
 import { MdContactPhone, MdOutlineAppRegistration, MdOutlineCastForEducation } from "react-icons/md";
 import { GiPineapple } from "react-icons/gi";
@@ -28,7 +31,6 @@ import { FaHandsHelping } from "react-icons/fa";
 import { VscOrganization } from "react-icons/vsc";
 import { AiFillSchedule } from "react-icons/ai";
 import { GrDocumentPdf } from "react-icons/gr";
-import { FaCheckDouble } from "react-icons/fa";
 
 function App() {
     // --- Define NavLink Styles for maximum interactivity ---
@@ -138,10 +140,10 @@ function App() {
                             to="use" 
                             className={({ isActive }) => isActive ? activeNavClass : inactiveNavClass}
                         >
-                            <GiPineapple className="text-3xl text-yellow-300" /> App. Count
+                            <GiPineapple className="text-3xl text-blue-300" /> App. Count
                         </NavLink>
 <NavLink 
-                            to="notes" 
+                            to="classnotes" 
                             className={({ isActive }) => isActive ? activeNavClass : inactiveNavClass}
                         >
                             <GrDocumentPdf className="text-3xl text-yellow-300" /> Class Notes
@@ -150,7 +152,13 @@ function App() {
                             to="result" 
                             className={({ isActive }) => isActive ? activeNavClass : inactiveNavClass}
                         >
-                            <FaCheckDouble className="text-3xl text-yellow-300" /> Result Check
+                            <VscRepoFetch className="text-3xl text-green-300" /> Result Check
+                        </NavLink>
+<NavLink 
+                            to="attendance" 
+                            className={({ isActive }) => isActive ? activeNavClass : inactiveNavClass}
+                        >
+                            <RiPresentationLine  className="text-3xl text-red-300" /> Attendance
                         </NavLink>
 
                     </div>
@@ -182,6 +190,7 @@ function App() {
                             <Route path="courses/*" element={<Courses />} />
                             <Route path="staff/*" element={<Staff />} />
                             <Route path="schedule/*" element={<Schedule />} />
+                             <Route path="classnotes/*" element={<ClassNotes />} />
                             
                             {/* Nested routes definitions, often defined within the parent component's <Routes> */}
                             <Route path="dailyactivities" element={<DailyActivities />} />
