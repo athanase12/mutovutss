@@ -18,6 +18,7 @@ import DailyActivities from "./pages/DailyActivities";
 import Timetable from "./pages/Timetable";
 import ClassNotes from "./pages/ClassNotes";
 // Icon Imports
+import { FcCalendar } from "react-icons/fc";
 import { VscRepoFetch } from "react-icons/vsc";
 import { CiMenuBurger, CiHome } from "react-icons/ci";
 import { RiPresentationLine } from "react-icons/ri";
@@ -164,7 +165,7 @@ function App() {
                             to="calendar" 
                             className={({ isActive }) => isActive ? activeNavClass : inactiveNavClass}
                         >
-                            <RiPresentationLine  className="text-3xl text-red-300" /> School Calendar
+                            <FcCalendar  className="text-3xl text-red-300" /> School Calendar
                         </NavLink>
 
                     </div>
