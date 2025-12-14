@@ -26,29 +26,17 @@ const ScrollingText = () => {
                        hover:shadow-4xl hover:from-blue-600 hover:via-purple-500 hover:to-green-400
                        border-b-4 border-yellow-400"
         >
-            
             {/* 1. ICONS: Applied new interactive classes */}
-            <div className="flex ml-4 sm:ml-10 space-x-4 md:space-x-8">
-                
-                <MdMenuBook 
-                    className={interactiveIconClass} 
-                    // No additional animation override needed here
-                />
-                
-                <GiJewelCrown 
-                    className={interactiveIconClass + " delay-100"} 
-                    // Added a slight delay for staggered pulse
-                />
-                
-                <MdOutlineCastForEducation 
-                    className={interactiveIconBounceClass} // Uses the special bounce/rotate class
-                />
+            <div className="flex ml-4 sm:ml-10 space-x-4 md:space-x-8 items-center">
+                <MdMenuBook className={interactiveIconClass} />
+                <GiJewelCrown className={interactiveIconClass + " delay-100"} />
+                <MdOutlineCastForEducation className={interactiveIconBounceClass} />
             </div>
             
             {/* 2. TEXT: Enhanced text style with responsiveness and dynamic effects */}
             <div 
                 className="
-                    scrolling-text 
+                    flex items-center scrolling-text 
                     text-xl sm:text-2xl md:text-3xl lg:text-4xl 
                     font-serif font-extrabold text-yellow-100 drop-shadow-xl 
                     mr-4 sm:mr-10 
@@ -62,7 +50,8 @@ const ScrollingText = () => {
                     md:animate-bounce
                 "
             >
-                Welcome To Mutovu Technical school
+                
+                Welcome To Mutovu Technical School
             </div>
         </div>
     );

@@ -13,7 +13,7 @@ function Mission() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="bg-gradient-to-br from-primary-600 to-primary-800 text-white p-8 rounded-xl">
-          <div className="text-4xl mb-4">🎯</div>
+          
           <h3 className="text-2xl font-bold mb-4">Our Mission</h3>
           <p className="mb-4">
             To provide quality technical education that equips students with practical skills, 

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 import MTVImage from '../pages/MTV.PNG'; // Ensure this path is correct
 
 /**
@@ -37,19 +38,18 @@ function Comp1() {
           
           {/* Call-to-Action Buttons */}
           <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-6">
-            <a 
-              href="/registration" 
+            <Link 
+              to="/registration" // Use 'to' prop for routing
               className="px-8 py-3 text-lg font-semibold rounded-full bg-yellow-500 text-blue-900 hover:bg-yellow-400 transition duration-300 shadow-xl"
             >
               Enroll Now
-            </a>
-            <a 
-              href="/VideoPlayer" 
-              className="px-8 py-3 text-lg font-semibold rounded-full bg-transparent border-2
-               border-white text-white hover:bg-white hover:text-blue-900 transition duration-300"
+            </Link>
+            <Link 
+              to="/VideoPlayer" // Use 'to' prop for routing
+              className="px-8 py-3 text-lg font-semibold rounded-full bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-900 transition duration-300"
             >
               Discover Our Programs
-            </a>
+            </Link>
           </div>
         </div>
       </div>
