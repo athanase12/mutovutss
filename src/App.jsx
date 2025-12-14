@@ -18,6 +18,7 @@ import DailyActivities from "./pages/DailyActivities";
 import Timetable from "./pages/Timetable";
 import ClassNotes from "./pages/ClassNotes";
 // Icon Imports
+import { RiArrowDropDownFill } from "react-icons/ri";
 import { FcCalendar } from "react-icons/fc";
 import { VscRepoFetch } from "react-icons/vsc";
 import { CiMenuBurger, CiHome } from "react-icons/ci";
@@ -71,7 +72,7 @@ function App() {
                     {/* Menu Header with strong visual style */}
                     <h1 className="text-3xl font-extrabold mb-6 px-4 pb-3 
                                    border-b-4 border-yellow-400 text-center flex items-center justify-center gap-3">
-                        <CiMenuBurger className="text-4xl animate-pulse" /> Mutovu TSS
+                        <RiArrowDropDownFill className="text-4xl animate-pulse" /> Mutovu TSS
                     </h1>
                     
                     {/* Navigation Links (All using the defined interactive styles) */}
