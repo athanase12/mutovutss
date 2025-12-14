@@ -160,6 +160,12 @@ function App() {
                         >
                             <RiPresentationLine  className="text-3xl text-red-300" /> Attendance
                         </NavLink>
+<NavLink 
+                            to="calendar" 
+                            className={({ isActive }) => isActive ? activeNavClass : inactiveNavClass}
+                        >
+                            <RiPresentationLine  className="text-3xl text-red-300" /> School Calendar
+                        </NavLink>
 
                     </div>
                     
