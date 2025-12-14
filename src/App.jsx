@@ -27,6 +27,8 @@ import { ImFileVideo } from "react-icons/im";
 import { FaHandsHelping } from "react-icons/fa";
 import { VscOrganization } from "react-icons/vsc";
 import { AiFillSchedule } from "react-icons/ai";
+import { GrDocumentPdf } from "react-icons/gr";
+import { FaCheckDouble } from "react-icons/fa";
 
 function App() {
     // --- Define NavLink Styles for maximum interactivity ---
@@ -138,6 +140,19 @@ function App() {
                         >
                             <GiPineapple className="text-3xl text-yellow-300" /> App. Count
                         </NavLink>
+<NavLink 
+                            to="notes" 
+                            className={({ isActive }) => isActive ? activeNavClass : inactiveNavClass}
+                        >
+                            <GrDocumentPdf className="text-3xl text-yellow-300" /> Class Notes
+                        </NavLink>
+<NavLink 
+                            to="result" 
+                            className={({ isActive }) => isActive ? activeNavClass : inactiveNavClass}
+                        >
+                            <FaCheckDouble className="text-3xl text-yellow-300" /> Result Check
+                        </NavLink>
+
                     </div>
                     
                     {/* Unique Logout Button with Strong Interaction */}
