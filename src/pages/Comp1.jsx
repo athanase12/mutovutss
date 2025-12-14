@@ -45,7 +45,7 @@ function Comp1() {
               Enroll Now
             </Link>
             <Link 
-              to="/VideoPlayer" // Use 'to' prop for routing
+              to="/Courses" // Use 'to' prop for routing
               className="px-8 py-3 text-lg font-semibold rounded-full bg-transparent border-2 border-white text-white hover:bg-white hover:text-blue-900 transition duration-300"
             >
               Discover Our Programs
