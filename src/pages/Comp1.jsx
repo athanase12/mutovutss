@@ -28,7 +28,7 @@ function Comp1() {
           
           {/* Subtitle / Location */}
           <p className="text-2xl md:text-3xl font-light text-yellow-400 mb-8">
-            Nyaruguru District, Southern Province, Rwanda
+            Muganza Sector, Nyaruguru District, Southern Province, Rwanda
           </p>
           
           {/* Mission Statement */}
