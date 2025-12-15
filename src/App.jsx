@@ -35,7 +35,6 @@ import { AiFillSchedule } from "react-icons/ai";
 import { GrDocumentPdf } from "react-icons/gr";
 
 function App() {
-    // --- Define NavLink Styles for maximum interactivity ---
     const baseNavClass = 
         "flex font-semibold items-center gap-3 py-3 px-4 mx-3 rounded-xl " +
         "transition-all duration-300 ease-in-out cursor-pointer text-xl";
@@ -48,7 +47,7 @@ function App() {
         `${baseNavClass} text-gray-800 hover:bg-blue-200 hover:text-blue-900 ` +
         `transform hover:scale-[1.02] hover:shadow-xl`;
     
-    // Custom class for the unique Logout link
+   
     const logoutClass = 
         "text-lg font-bold w-full mx-auto mt-6 py-2 rounded-full flex items-center justify-center gap-2 " +
         "text-white bg-red-600 hover:bg-red-700 transition duration-300 transform hover:scale-105 shadow-xl " +
@@ -58,22 +57,22 @@ function App() {
     return (
         <BrowserRouter> 
             <div className="App sticky top-0 z-50"> 
-                {/* ScrollingText remains sticky at the top, placed above the main flex container */}
+               
                 <ScrollingText />
             </div>
             
             <div className="flex flex-col sm:flex-row min-h-screen">
-                {/* Navigation Sidebar */}
+              
                 <nav 
                     className="flex flex-col w-full sm:w-72 md:w-80 py-6 
                                bg-gradient-to-br from-purple-800 via-pink-700 to-cyan-500 
                                text-white shadow-2xl z-40 flex-shrink-0 transition-all duration-300"
                 >
                     {/* Menu Header with strong visual style */}
-                    <h1 className="text-3xl font-extrabold mb-6 px-4 pb-3 
+                    <h1 className="text-3xl font-extrabold mb-0 px-4 pb-3 
                                    border-b-4 border-yellow-400 text-center flex items-center justify-center gap-3">
-                        <RiArrowDropDownFill className="text-4xl animate-pulse" /> Mutovu TSS
-                    </h1>
+                        <RiArrowDropDownFill className="text-4xl ml-0 animate-bounce" /> Mutovu TSS
+                    </h1><hr className="border-4"/>
                     
                     {/* Navigation Links (All using the defined interactive styles) */}
                     <div className="space-y-2">
@@ -171,7 +170,7 @@ function App() {
 
                     </div>
                     
-                    {/* Unique Logout Button with Strong Interaction */}
+                   
                     <div className="mt-auto px-4"> 
                         <NavLink 
                             to="/logout-placeholder" 
@@ -210,7 +209,7 @@ function App() {
                 </div>
             </div>
             
-            {/* Footer with improved styling and responsiveness */}
+           
             <footer className="h-16 flex items-center justify-center text-center bg-gray-800 text-gray-200 
                              text-base sm:text-xl font-medium border-t-4 border-red-600 shadow-inner">
                 &copy; Copyright | Mutovu TSS 2025, All Rights Reserved.
