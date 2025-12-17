@@ -6,13 +6,13 @@ import { HiOutlineCalendar, HiOutlineClock } from "react-icons/hi";
 
 // --- Utility Classes ---
 const interactiveIconClass = 
-    "w-8 h-8 md:w-10 md:h-10 text-white drop-shadow-lg " +
+    "w-6 h-6 md:w-10 md:h-10 text-white drop-shadow-lg  " +
     "transition duration-500 ease-in-out cursor-pointer " +
     "hover:text-yellow-300 hover:scale-125 hover:rotate-6 " +
     "animate-none md:animate-pulse";
 
 const interactiveIconBounceClass = 
-    "w-8 h-8 md:w-10 md:h-10 text-white drop-shadow-lg " +
+    "w-6 h-6 md:w-10 md:h-10 text-white drop-shadow-lg " +
     "transition duration-500 ease-in-out cursor-pointer " +
     "hover:text-red-300 hover:scale-125 hover:rotate-[-6deg] " +
     "animate-none md:animate-bounce";
@@ -126,5 +126,6 @@ const ScrollingText = () => {
 
 
 export default ScrollingText;
+
 
 
