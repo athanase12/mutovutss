@@ -115,7 +115,7 @@ const ScrollingText = () => {
                     animate-none md:animate-bounce
                 "
             >
-                Welcome To Mutovu Technical Secondary School
+                Welcome To Mutovu TSS
             </div>
 
             {/* Aesthetic Flare */}
@@ -126,3 +126,4 @@ const ScrollingText = () => {
 
 
 export default ScrollingText;
+
