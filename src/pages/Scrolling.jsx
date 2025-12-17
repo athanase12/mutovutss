@@ -107,8 +107,8 @@ const ScrollingText = () => {
             {/* 3. SCROLLING TEXT */}
             <div 
                 className="
-                    flex-1 flex items-center justify-center
-                    text-xl sm:text-2xl md:text-3xl lg:text-4xl 
+                    flex-1 flex items-center justify-center text-sm
+                    text-xl sm:text-sm md:text-3xl lg:text-4xl 
                     font-serif font-extrabold text-transparent bg-clip-text
                     bg-gradient-to-b from-yellow-100 to-yellow-500 drop-shadow-xl
                     transition duration-500 hover:scale-105 select-none
@@ -126,4 +126,5 @@ const ScrollingText = () => {
 
 
 export default ScrollingText;
+
 
