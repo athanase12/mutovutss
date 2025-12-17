@@ -767,7 +767,7 @@ function App() {
                                         key={index}
                                         to={item.to}
                                         end={item.to === "/"}
-                                        onClick={(e) => item.label === "Staff"}
+                                        onClick={(e) => item.label === "Staff" && e.preventDefault()}
                                         onMouseEnter={() => setActiveHover(index)}
                                         onMouseLeave={() => setActiveHover(null)}
                                         className={({ isActive }) => 
