@@ -86,14 +86,6 @@ const ScrollingText = () => {
                     </div>
                 </div>
 
-                {/* SPIRIT BUTTON (Interactive Element) */}
-                <button 
-                    onClick={() => setSpiritCount(prev => prev + 1)}
-                    className="flex flex-col items-center bg-yellow-400/10 hover:bg-yellow-400/20 border border-yellow-400/30 p-2 rounded-lg transition-all active:scale-90 group"
-                >
-                    <span className="text-[10px] font-bold text-yellow-400 uppercase leading-none mb-1">Spirit</span>
-                    <span className="text-lg font-black text-white group-hover:animate-bounce">{spiritCount}</span>
-                </button>
             </div>
 
             {/* 2. ICONS SECTION */}
@@ -131,5 +123,6 @@ const ScrollingText = () => {
         </div>
     );
 };
+
 
 export default ScrollingText;
