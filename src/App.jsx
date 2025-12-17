@@ -50,6 +50,7 @@ function App() {
     const [searchOpen, setSearchOpen] = useState(false);
     const [notifications, setNotifications] = useState(3);
 
+    // Enhanced NavLink classes with big underline effect
     const baseNavClass = 
         "flex font-semibold items-center gap-3 py-3 px-4 mx-3 rounded-xl " +
         "transition-all duration-300 ease-in-out cursor-pointer text-lg " +
@@ -58,17 +59,50 @@ function App() {
     const activeNavClass = 
         `${baseNavClass} bg-blue-600 text-white shadow-lg shadow-blue-600/30 ` +
         `transform scale-[1.02] ring-1 ring-blue-400 font-bold ` +
-        "before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/10 before:to-transparent before:animate-pulse";
+        "before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/10 before:to-transparent before:animate-pulse " +
+        // Big underline for active state
+        "after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-yellow-400 after:shadow-lg after:shadow-yellow-400/50 " +
+        "after:transform after:scale-x-100 after:transition-transform after:duration-500 after:origin-left";
 
     const inactiveNavClass = 
         `${baseNavClass} text-gray-300 hover:text-white ` +
         `hover:bg-gray-800/50 hover:scale-[1.01] hover:shadow-md ` +
         "before:absolute before:inset-0 before:bg-gradient-to-r before:from-gray-700/0 before:via-gray-700/20 before:to-gray-700/0 " +
-        "before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700";
+        "before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 " +
+        // Enhanced hover underline effect
+        "after:absolute after:bottom-0 after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-yellow-400 after:via-orange-400 after:to-yellow-400 " +
+        "after:shadow-lg after:shadow-yellow-400/40 after:transform after:scale-x-0 after:transition-all after:duration-500 after:origin-left " +
+        "hover:after:scale-x-100 hover:after:h-[4px] hover:after:shadow-xl hover:after:shadow-yellow-400/60 " +
+        // Add animated glow effect on hover
+        "hover:after:animate-glow";
 
     const logoutClass = 
         "text-lg font-bold w-full mt-6 py-2 px-4 rounded-xl flex items-center justify-center gap-2 " +
-        "text-white bg-red-600 hover:bg-red-700 transition duration-300 transform hover:scale-[1.02] shadow-lg ring-1 ring-red-400";
+        "text-white bg-red-600 hover:bg-red-700 transition duration-300 transform hover:scale-[1.02] shadow-lg ring-1 ring-red-400 " +
+        // Add underline effect to logout button too
+        "relative overflow-hidden group " +
+        "after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-white/50 after:transform after:scale-x-0 " +
+        "after:transition-transform after:duration-300 hover:after:scale-x-100";
+
+    // Navigation items data with enhanced hover states
+    const navItems = [
+        { to: "/", icon: <CiHome className="text-2xl" />, label: "Home", color: "text-yellow-400" },
+        { to: "comp2/*", icon: <FcAbout className="text-2xl" />, label: "About", color: "text-blue-400" },
+        { to: "contact/*", icon: <MdContactPhone className="text-2xl" />, label: "Contact", color: "text-red-400" },
+        { to: "registration/*", icon: <MdOutlineAppRegistration className="text-2xl" />, label: "Registration", color: "text-cyan-400" },
+        { to: "courses/*", icon: <MdOutlineCastForEducation className="text-2xl" />, label: "Courses", color: "text-green-400" },
+        { to: "staff", icon: <VscOrganization className="text-2xl" />, label: "Staff", color: "text-purple-400" },
+        { to: "schedule/*", icon: <AiFillSchedule className="text-2xl" />, label: "Schedule", color: "text-blue-300" },
+        { to: "help", icon: <FaHandsHelping className="text-2xl" />, label: "Help", color: "text-orange-400" },
+        { to: "video", icon: <ImFileVideo className="text-2xl" />, label: "Video", color: "text-pink-400" },
+        { to: "athanase-ai", icon: <RiRobot2Line className="text-2xl" />, label: "Athanase AI", color: "text-green-300" },
+        { to: "form", icon: <IoSettingsOutline className="text-2xl" />, label: "Settings", color: "text-gray-300" },
+        { to: "use", icon: <GiPineapple className="text-2xl" />, label: "App Counter", color: "text-yellow-300" },
+        { to: "classnotes", icon: <GrDocumentPdf className="text-2xl" />, label: "Class Notes", color: "text-red-300" },
+        { to: "result", icon: <VscRepoFetch className="text-2xl" />, label: "Result Check", color: "text-green-500" },
+        { to: "attendance", icon: <RiPresentationLine className="text-2xl" />, label: "Attendance", color: "text-orange-300" },
+        { to: "calendar", icon: <FcCalendar className="text-2xl" />, label: "Calendar", color: "text-blue-200" }
+    ];
 
     // Enhanced Athanase AI component with thinking capability
     const AthanaseAI = () => {
@@ -86,7 +120,7 @@ function App() {
         const [isThinking, setIsThinking] = useState(false);
         const [thinkingSteps, setThinkingSteps] = useState([]);
         const [conversationHistory, setConversationHistory] = useState([]);
-        const [aiMood, setAiMood] = useState('normal'); // normal, thinking, excited, confused
+        const [aiMood, setAiMood] = useState('normal');
         const messagesEndRef = useRef(null);
 
         // Thinking animation types
@@ -104,7 +138,7 @@ function App() {
             messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
         }, [messages]);
 
-        // Comprehensive response database with categories
+        // Comprehensive response database
         const responseDatabase = {
             greetings: [
                 "Hello! I'm Athanase AI, ready to help you with everything about Mutovu TSS.",
@@ -178,7 +212,6 @@ function App() {
             ]
         };
 
-        // Enhanced keyword mapping with priority scores
         const keywordMap = {
             greeting: { 
                 keywords: ['hello', 'hi', 'hey', 'good morning', 'good afternoon', 'good evening', 'greetings', 'welcome'],
@@ -247,7 +280,6 @@ function App() {
             }
         };
 
-        // Simulate thinking process
         const simulateThinking = () => {
             const steps = [];
             const numSteps = 2 + Math.floor(Math.random() * 3);
@@ -259,18 +291,15 @@ function App() {
             return steps;
         };
 
-        // Find best response with context awareness
         const findBestResponse = (userInput) => {
             const input = userInput.toLowerCase().trim();
             let bestMatch = { category: 'default', score: 0 };
             
-            // Calculate keyword scores
             for (const [key, data] of Object.entries(keywordMap)) {
                 let score = 0;
                 data.keywords.forEach(keyword => {
                     if (input.includes(keyword)) {
-                        score += (1 / data.priority) * 10; // Higher priority = lower score impact
-                        // Bonus for exact matches
+                        score += (1 / data.priority) * 10;
                         if (input === keyword || input.startsWith(keyword + ' ')) {
                             score += 5;
                         }
@@ -282,13 +311,9 @@ function App() {
                 }
             }
             
-            // Get responses from the selected category
             const responses = responseDatabase[bestMatch.category] || responseDatabase.default;
-            
-            // Add context from conversation history
             let selectedResponse = responses[Math.floor(Math.random() * responses.length)];
             
-            // Add follow-up question 30% of the time
             if (Math.random() > 0.7) {
                 const followUps = [
                     " Is there anything specific about this you'd like to know?",
@@ -319,26 +344,22 @@ function App() {
             setConversationHistory(prev => [...prev, { role: 'user', content: input }]);
             setInput('');
             
-            // Start thinking process
             setIsThinking(true);
             const thinkingSteps = simulateThinking();
             setThinkingSteps(thinkingSteps);
             setAiMood('thinking');
             
-            // Show thinking steps with delays
             thinkingSteps.forEach((step, index) => {
                 setTimeout(() => {
                     setThinkingSteps(prev => prev.slice(1));
                 }, 800 + (index * 600));
             });
             
-            // After thinking, generate response
             setTimeout(() => {
                 setIsThinking(false);
                 setIsTyping(true);
                 setAiMood('normal');
                 
-                // Generate response after a brief typing delay
                 setTimeout(() => {
                     const response = findBestResponse(input);
                     const aiResponse = {
@@ -371,7 +392,6 @@ function App() {
                 msg.id === messageId ? { ...msg, feedback } : msg
             ));
             
-            // Show feedback confirmation
             setTimeout(() => {
                 if (feedback === 'positive') {
                     const thankYouMsg = {
@@ -412,7 +432,6 @@ function App() {
 
         const handleQuickQuestion = (question) => {
             setInput(question.text);
-            // Auto-send after a brief delay
             setTimeout(() => {
                 if (input === question.text) {
                     sendMessage();
@@ -420,7 +439,6 @@ function App() {
             }, 300);
         };
 
-        // AI Mood indicators
         const moodIcons = {
             normal: <RiRobot2Line className="text-2xl text-green-500" />,
             thinking: <TbBrain className="text-2xl text-blue-500 animate-pulse" />,
@@ -450,7 +468,6 @@ function App() {
                     </div>
                     
                     <div className="bg-white rounded-xl shadow-2xl border border-gray-300 overflow-hidden">
-                        {/* Chat Header */}
                         <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 p-4 text-white">
                             <div className="flex justify-between items-center">
                                 <div>
@@ -468,7 +485,6 @@ function App() {
                             </div>
                         </div>
                         
-                        {/* Thinking Process Display */}
                         {isThinking && thinkingSteps.length > 0 && (
                             <div className="bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-200 p-3">
                                 <div className="flex items-center gap-2 text-sm text-blue-700">
@@ -486,7 +502,6 @@ function App() {
                             </div>
                         )}
                         
-                        {/* Chat Messages */}
                         <div className="h-96 overflow-y-auto p-4 space-y-4">
                             {messages.map((msg) => (
                                 <div key={msg.id} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -559,7 +574,6 @@ function App() {
                         </div>
                         
                         <div className="border-t border-gray-200 p-4 bg-gray-50">
-                            {/* Quick Questions */}
                             <div className="mb-4">
                                 <div className="flex items-center justify-between mb-2">
                                     <p className="text-sm font-medium text-gray-700">Quick questions:</p>
@@ -578,7 +592,6 @@ function App() {
                                 </div>
                             </div>
                             
-                            {/* Input Area */}
                             <div className="flex gap-3">
                                 <div className="flex-1 relative">
                                     <input
@@ -620,7 +633,6 @@ function App() {
                         </div>
                     </div>
                     
-                    {/* AI Statistics & Capabilities */}
                     <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="bg-white p-4 rounded-xl shadow border border-gray-200">
                             <div className="flex items-center justify-between">
@@ -677,7 +689,7 @@ function App() {
             </div>
             
             <div className="flex flex-col sm:flex-row min-h-screen">
-                {/* Sophisticated Dark Navigation */}
+                {/* Enhanced Navigation with Big Underline Effects */}
                 <nav 
                     className={`flex flex-col ${collapsed ? 'w-20' : 'w-72 md:w-80'} py-6 
                                bg-green-900 text-white shadow-2xl z-40 flex-shrink-0 
@@ -697,15 +709,15 @@ function App() {
                         <div className="flex items-center justify-between mb-4">
                             <button 
                                 onClick={() => setCollapsed(!collapsed)}
-                                className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors"
+                                className="p-2 rounded-lg bg-gray-800 hover:bg-gray-700 transition-colors relative group/btn"
                             >
                                 {collapsed ? <FaChevronRight /> : <FaChevronLeft />}
+                                <span className="absolute bottom-0 left-0 w-full h-0.5 bg-yellow-400 transform scale-x-0 group-hover/btn:scale-x-100 transition-transform duration-300"></span>
                             </button>
                             
                             {!collapsed && (
                                 <div className="flex items-center gap-2">
-                                    
-                                   
+                                    {/* Optional: Add notification bell */}
                                 </div>
                             )}
                         </div>
@@ -713,13 +725,13 @@ function App() {
                         {/* School Logo/Title */}
                         <div className={`flex items-center justify-center ${collapsed ? 'px-0' : 'px-4'} mb-6`}>
                             {collapsed ? (
-                                <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center relative group/logo">
                                     <RiArrowDropDownFill className="text-2xl" />
+                                    <span className="absolute bottom-0 left-0 w-full h-1 bg-yellow-400 transform scale-x-0 group-hover/logo:scale-x-100 transition-transform duration-300"></span>
                                 </div>
                             ) : (
                                 <div className="flex items-center gap-3">
-                                   
-                                    
+                                    {/* Optional: School logo and name */}
                                 </div>
                             )}
                         </div>
@@ -739,34 +751,18 @@ function App() {
                         )}
                     </div>
 
-                    {/* Navigation Links */}
+                    {/* Enhanced Navigation Links */}
                     <div className="relative z-10 px-3 flex-1 space-y-1 overflow-y-auto">
                         <div className="mb-4">
                             {!collapsed && (
-                                <div className="px-3 mb-3">
-                                    <p className="text-3xl uppercase text-gray-300 font-extrabold tracking-wider text-left ml-0 mb-1">Main Menu <hr className="border-2"/></p>
+                                <div className="px-3 mb-3 relative">
+                                    <p className="text-3xl uppercase text-gray-300 font-extrabold tracking-wider text-left ml-0 mb-1">Main Menu</p>
+                                    <div className="h-1 w-50 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full mt-2"></div>
                                 </div>
                             )}
                             
                             <div className="space-y-1">
-                                {[
-                                    { to: "/", icon: <CiHome className="text-2xl" />, label: "Home", color: "text-yellow-400" },
-                                    { to: "comp2/*", icon: <FcAbout className="text-2xl" />, label: "About", color: "text-blue-400" },
-                                    { to: "contact/*", icon: <MdContactPhone className="text-2xl" />, label: "Contact", color: "text-red-400" },
-                                    { to: "registration/*", icon: <MdOutlineAppRegistration className="text-2xl" />, label: "Registration", color: "text-cyan-400" },
-                                    { to: "courses/*", icon: <MdOutlineCastForEducation className="text-2xl" />, label: "Courses", color: "text-green-400" },
-                                    { to: "staff", icon: <VscOrganization className="text-2xl" />, label: "Staff", color: "text-purple-400" },
-                                    { to: "schedule/*", icon: <AiFillSchedule className="text-2xl" />, label: "Schedule", color: "text-blue-300" },
-                                    { to: "help", icon: <FaHandsHelping className="text-2xl" />, label: "Help", color: "text-orange-400" },
-                                    { to: "video", icon: <ImFileVideo className="text-2xl" />, label: "Video", color: "text-pink-400" },
-                                    { to: "athanase-ai", icon: <RiRobot2Line className="text-2xl" />, label: "Athanase AI", color: "text-green-300" },
-                                    { to: "form", icon: <IoSettingsOutline className="text-2xl" />, label: "Settings", color: "text-gray-300" },
-                                    { to: "use", icon: <GiPineapple className="text-2xl" />, label: "App Counter", color: "text-yellow-300" },
-                                    { to: "classnotes", icon: <GrDocumentPdf className="text-2xl" />, label: "Class Notes", color: "text-red-300" },
-                                    { to: "result", icon: <VscRepoFetch className="text-2xl" />, label: "Result Check", color: "text-green-500" },
-                                    { to: "attendance", icon: <RiPresentationLine className="text-2xl" />, label: "Attendance", color: "text-orange-300" },
-                                    { to: "calendar", icon: <FcCalendar className="text-2xl" />, label: "Calendar", color: "text-blue-200" }
-                                ].map((item, index) => (
+                                {navItems.map((item, index) => (
                                     <NavLink
                                         key={index}
                                         to={item.to}
@@ -778,19 +774,21 @@ function App() {
                                             isActive ? activeNavClass : inactiveNavClass
                                         }
                                     >
-                                        <div className={`${item.color} transition-transform group-hover:scale-110`}>
+                                        <div className={`${item.color} transition-transform group-hover:scale-110 group-hover:rotate-3`}>
                                             {item.icon}
                                         </div>
                                         {!collapsed && (
                                             <>
-                                                <span className="flex-1 text-sm">{item.label}</span>
+                                                <span className="flex-1 text-sm transition-all duration-300 group-hover:tracking-wide">
+                                                    {item.label}
+                                                </span>
                                                 {activeHover === index && (
-                                                    <FaChevronRight className="text-xs opacity-70" />
+                                                    <FaChevronRight className="text-xs opacity-70 animate-pulse" />
                                                 )}
                                             </>
                                         )}
                                         {!collapsed && item.label === "Staff" && (
-                                            <span className="text-xs bg-gray-700 px-2 py-0.5 rounded text-gray-300">
+                                            <span className="text-xs bg-gray-700 px-2 py-0.5 rounded text-gray-300 group-hover:bg-gray-600 transition-colors">
                                                 Soon
                                             </span>
                                         )}
@@ -804,8 +802,9 @@ function App() {
                     <div className="relative z-10 px-4 mt-6">
                         {collapsed ? (
                             <div className="flex justify-center">
-                                <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center">
+                                <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center relative group/profile">
                                     <CgProfile className="text-2xl" />
+                                    <span className="absolute bottom-0 left-0 w-full h-1 bg-yellow-400 transform scale-x-0 group-hover/profile:scale-x-100 transition-transform duration-300"></span>
                                 </div>
                             </div>
                         ) : (
@@ -817,7 +816,7 @@ function App() {
                                     <div className="relative">
                                         <CgProfile className="w-6 h-6" />
                                         {notifications > 0 && (
-                                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+                                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
                                         )}
                                     </div>
                                     <span className="flex-1 text-left">Profile</span>
@@ -829,15 +828,15 @@ function App() {
                                         Mutovu TSS © 2004-{new Date().getFullYear()}
                                     </p>
                                     <div className="flex items-center justify-center gap-2 mt-2">
-                                        <button className="text-xs text-gray-400 hover:text-white">
+                                        <button className="text-xs text-gray-400 hover:text-white transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white/30 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300">
                                             <IoHelpCircle />
                                         </button>
                                         <span className="text-xs text-gray-400">|</span>
-                                        <button className="text-xs text-gray-400 hover:text-white">
+                                        <button className="text-xs text-gray-400 hover:text-white transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white/30 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300">
                                             Privacy
                                         </button>
                                         <span className="text-xs text-gray-400">|</span>
-                                        <button className="text-xs text-gray-400 hover:text-white">
+                                        <button className="text-xs text-gray-400 hover:text-white transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white/30 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300">
                                             Terms
                                         </button>
                                     </div>
@@ -849,7 +848,7 @@ function App() {
                 
                 {/* Main Content Area */}
                 <div className="flex-grow p-4 sm:p-8 bg-gray-100 transition duration-500">
-                    <main className='p-0 sm:p-4 mb-4' >
+                    <main className='p-0 sm:p-4 mb-4'>
                         <Routes>
                             <Route path="/" element={<Comp1 />} />
                             <Route path="comp2/*" element={<Comp2 />} />
@@ -863,10 +862,8 @@ function App() {
                             <Route path="staff/*" element={<Staff />} />
                             <Route path="schedule/*" element={<Schedule />} />
                             <Route path="classnotes/*" element={<ClassNotes />} />
-                            {/* Add Athanase AI Route */}
                             <Route path="athanase-ai" element={<AthanaseAI />} />
                             
-                            {/* Nested routes definitions, often defined within the parent component's <Routes> */}
                             <Route path="dailyactivities" element={<DailyActivities />} />
                             <Route path="timetable" element={<Timetable />} />
                             
@@ -879,7 +876,7 @@ function App() {
             {/* Footer */}
             <footer className="h-16 flex items-center justify-center text-center 
                              bg-gray-700 text-gray-300 text-base sm:text-2xl font-medium 
-                             border-t border-gray-700 shadow-inner">
+                             border-t border-gray-700 shadow-inner relative">
                 <div className="flex items-center gap-4">
                     <span>&copy; Copyright | Mutovu TSS 2025</span>
                     <span className="hidden sm:inline">•</span>
@@ -887,9 +884,25 @@ function App() {
                     <span className="hidden md:inline">•</span>
                     <span className="hidden md:inline">Excellence Through Technical Education</span>
                 </div>
+                {/* Footer underline effect */}
+                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-400"></div>
             </footer>
         </BrowserRouter>
     );
 }
 
 export default App;
+
+<style jsx>{`
+    @keyframes glow {
+        0%, 100% {
+            box-shadow: 0 0 5px rgba(255, 193, 7, 0.6), 0 0 10px rgba(255, 193, 7, 0.4);
+        }
+        50% {
+            box-shadow: 0 0 10px rgba(255, 193, 7, 0.8), 0 0 20px rgba(255, 193, 7, 0.6);
+        }
+    }
+    .hover\:after\:animate-glow:hover::after {
+        animation: glow 1s ease-in-out infinite;
+    }
+`}</style>
