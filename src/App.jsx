@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";  
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 // Assuming all pages components are available
+import Attendance from "./pages/Attendance";
 import Comp1 from "./pages/Comp1";
 import Comp2 from "./pages/Comp2";
 import Contact from "./pages/Contact";
@@ -108,6 +109,16 @@ function App() {
             setVisitorStats(initialStats);
             localStorage.setItem('mutovu_tss_visitor_stats', JSON.stringify(initialStats));
         }
+        const navItems = [
+            // ... other items
+            { 
+                to: "attendance", 
+                icon: <RiPresentationLine className="text-2xl" />, 
+                label: "Attendance", 
+                color: "text-orange-300" 
+            },
+            // ... other items
+        ];
 
         // Simulate other users visiting (for demo purposes)
         const simulateOtherVisits = () => {
@@ -1084,7 +1095,7 @@ function App() {
                             
                             <Route path="dailyactivities" element={<DailyActivities />} />
                             <Route path="timetable" element={<Timetable />} />
-                            
+                            <Route path="attendance" element={<Attendance />} />
                             <Route path="*" element={<Notfound />} />
                         </Routes>
                     </main>
