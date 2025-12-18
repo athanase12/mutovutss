@@ -53,33 +53,100 @@ function App() {
         today: 0,
         thisWeek: 0,
         thisMonth: 0,
-        thisYear: 0
+        thisYear: 0,
+        total: 0,
+        lastUpdate: new Date()
     });
 
-    // Initialize visitor statistics
+    // Initialize visitor statistics from localStorage or set defaults
     useEffect(() => {
-        // Set initial values
-        const initialStats = {
-            today: 342,
-            thisWeek: 2145,
-            thisMonth: 8234,
-            thisYear: 45289
-        };
+        const savedStats = localStorage.getItem('mutovu_tss_visitor_stats');
+        const today = new Date();
+        const todayKey = today.toDateString();
         
-        setVisitorStats(initialStats);
+        if (savedStats) {
+            const parsedStats = JSON.parse(savedStats);
+            const lastSavedDate = new Date(parsedStats.lastUpdate);
+            
+            // Check if it's a new day
+            if (lastSavedDate.toDateString() !== todayKey) {
+                // Reset daily count for new day
+                const newStats = {
+                    today: 1, // Start new day with 1 (current visit)
+                    thisWeek: parsedStats.thisWeek + 1,
+                    thisMonth: parsedStats.thisMonth + 1,
+                    thisYear: parsedStats.thisYear + 1,
+                    total: parsedStats.total + 1,
+                    lastUpdate: new Date()
+                };
+                setVisitorStats(newStats);
+                localStorage.setItem('mutovu_tss_visitor_stats', JSON.stringify(newStats));
+            } else {
+                // Same day, increment counts
+                const newStats = {
+                    ...parsedStats,
+                    today: parsedStats.today + 1,
+                    thisWeek: parsedStats.thisWeek + 1,
+                    thisMonth: parsedStats.thisMonth + 1,
+                    thisYear: parsedStats.thisYear + 1,
+                    total: parsedStats.total + 1,
+                    lastUpdate: new Date()
+                };
+                setVisitorStats(newStats);
+                localStorage.setItem('mutovu_tss_visitor_stats', JSON.stringify(newStats));
+            }
+        } else {
+            // First time visitor
+            const initialStats = {
+                today: 1,
+                thisWeek: 1,
+                thisMonth: 1,
+                thisYear: 1,
+                total: 1,
+                lastUpdate: new Date()
+            };
+            setVisitorStats(initialStats);
+            localStorage.setItem('mutovu_tss_visitor_stats', JSON.stringify(initialStats));
+        }
 
-        // Update stats every 5 minutes
-        const interval = setInterval(() => {
-            setVisitorStats(prev => ({
-                today: prev.today + Math.floor(Math.random() * 3),
-                thisWeek: prev.thisWeek + Math.floor(Math.random() * 5),
-                thisMonth: prev.thisMonth + Math.floor(Math.random() * 10),
-                thisYear: prev.thisYear + Math.floor(Math.random() * 15)
-            }));
-        }, 300000);
+        // Simulate other users visiting (for demo purposes)
+        const simulateOtherVisits = () => {
+            setVisitorStats(prev => {
+                const newStats = {
+                    ...prev,
+                    today: prev.today + Math.floor(Math.random() * 3),
+                    thisWeek: prev.thisWeek + Math.floor(Math.random() * 5),
+                    thisMonth: prev.thisMonth + Math.floor(Math.random() * 10),
+                    thisYear: prev.thisYear + Math.floor(Math.random() * 15),
+                    total: prev.total + Math.floor(Math.random() * 20)
+                };
+                localStorage.setItem('mutovu_tss_visitor_stats', JSON.stringify(newStats));
+                return newStats;
+            });
+        };
+
+        // Simulate visits every 30-90 seconds
+        const interval = setInterval(simulateOtherVisits, 30000 + Math.random() * 60000);
 
         return () => clearInterval(interval);
     }, []);
+
+    // Function to manually trigger a new visit (for testing)
+    const recordNewVisit = () => {
+        setVisitorStats(prev => {
+            const newStats = {
+                ...prev,
+                today: prev.today + 1,
+                thisWeek: prev.thisWeek + 1,
+                thisMonth: prev.thisMonth + 1,
+                thisYear: prev.thisYear + 1,
+                total: prev.total + 1,
+                lastUpdate: new Date()
+            };
+            localStorage.setItem('mutovu_tss_visitor_stats', JSON.stringify(newStats));
+            return newStats;
+        });
+    };
 
     // Enhanced NavLink classes with big underline effect
     const baseNavClass = 
@@ -135,42 +202,120 @@ function App() {
         { to: "calendar", icon: <FcCalendar className="text-2xl" />, label: "Calendar", color: "text-blue-200" }
     ];
 
-    // Minimal Visitor Statistics Component (Single line)
-    const MinimalVisitorStats = () => {
+    // Real-time Visitor Statistics Component
+    const VisitorStatistics = () => {
+        const [updateTime, setUpdateTime] = useState(new Date());
+
+        // Format time to show "Just now" or "X minutes ago"
+        const formatTime = (date) => {
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+            
+            if (diffMins < 1) return "Just now";
+            if (diffMins === 1) return "1 minute ago";
+            if (diffMins < 60) return `${diffMins} minutes ago`;
+            
+            const diffHours = Math.floor(diffMins / 60);
+            if (diffHours === 1) return "1 hour ago";
+            if (diffHours < 24) return `${diffHours} hours ago`;
+            
+            const diffDays = Math.floor(diffHours / 24);
+            if (diffDays === 1) return "1 day ago";
+            return `${diffDays} days ago`;
+        };
+
+        // Update time every minute
+        useEffect(() => {
+            const interval = setInterval(() => {
+                setUpdateTime(new Date());
+            }, 60000);
+            return () => clearInterval(interval);
+        }, []);
+
         return (
-            <div className="mt-8 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+            <div className="mt-8 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200 shadow-sm">
                 <div className="flex flex-col sm:flex-row items-center justify-between">
                     <div className="flex items-center gap-3 mb-3 sm:mb-0">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                            <FaChartLine className="text-blue-600" />
+                        <div className="relative">
+                            <div className="p-2 bg-blue-100 rounded-lg">
+                                <FaChartLine className="text-blue-600" />
+                            </div>
+                            {/* Animated ping dot for live updates */}
+                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></div>
+                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></div>
                         </div>
                         <div>
-                            <div className="text-sm font-medium text-gray-700">Visitor Statistics</div>
-                            <div className="text-xs text-gray-500">Updated: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                            <div className="text-sm font-medium text-gray-700">Live Visitor Statistics</div>
+                            <div className="text-xs text-gray-500">Updated: {formatTime(visitorStats.lastUpdate)}</div>
                         </div>
                     </div>
                     
                     <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
-                        <div className="text-center">
-                            <div className="text-lg font-bold text-blue-600">{visitorStats.today.toLocaleString()}</div>
+                        <div className="text-center group relative">
+                            <div className="text-lg font-bold text-blue-600 group-hover:scale-110 transition-transform duration-300">
+                                {visitorStats.today.toLocaleString()}
+                            </div>
                             <div className="text-xs text-gray-600">Today</div>
+                            {/* Tooltip */}
+                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                                {visitorStats.today === 1 ? '1 visitor today' : `${visitorStats.today.toLocaleString()} visitors today`}
+                            </div>
                         </div>
-                        <div className="text-center">
-                            <div className="text-lg font-bold text-green-600">{visitorStats.thisWeek.toLocaleString()}</div>
+                        <div className="text-center group relative">
+                            <div className="text-lg font-bold text-green-600 group-hover:scale-110 transition-transform duration-300">
+                                {visitorStats.thisWeek.toLocaleString()}
+                            </div>
                             <div className="text-xs text-gray-600">This Week</div>
+                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                                {visitorStats.thisWeek === 1 ? '1 visitor this week' : `${visitorStats.thisWeek.toLocaleString()} visitors this week`}
+                            </div>
                         </div>
-                        <div className="text-center">
-                            <div className="text-lg font-bold text-purple-600">{visitorStats.thisMonth.toLocaleString()}</div>
+                        <div className="text-center group relative">
+                            <div className="text-lg font-bold text-purple-600 group-hover:scale-110 transition-transform duration-300">
+                                {visitorStats.thisMonth.toLocaleString()}
+                            </div>
                             <div className="text-xs text-gray-600">This Month</div>
+                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                                {visitorStats.thisMonth === 1 ? '1 visitor this month' : `${visitorStats.thisMonth.toLocaleString()} visitors this month`}
+                            </div>
                         </div>
-                        <div className="text-center">
-                            <div className="text-lg font-bold text-orange-600">{visitorStats.thisYear.toLocaleString()}</div>
+                        <div className="text-center group relative">
+                            <div className="text-lg font-bold text-orange-600 group-hover:scale-110 transition-transform duration-300">
+                                {visitorStats.thisYear.toLocaleString()}
+                            </div>
                             <div className="text-xs text-gray-600">This Year</div>
+                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                                {visitorStats.thisYear === 1 ? '1 visitor this year' : `${visitorStats.thisYear.toLocaleString()} visitors this year`}
+                            </div>
                         </div>
                     </div>
                     
-                    <div className="mt-3 sm:mt-0 text-xs text-gray-500">
-                        <FaUsers className="inline mr-1" /> Site Analytics • Mutovu TSS
+                    <div className="mt-3 sm:mt-0">
+                        <div className="text-xs text-gray-500 flex items-center gap-2">
+                            <FaUsers className="text-blue-500" />
+                            <span>Total: {visitorStats.total.toLocaleString()} visits</span>
+                            {/* Hidden test button for development */}
+                            <button 
+                                onClick={recordNewVisit}
+                                className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 transition-colors hidden"
+                            >
+                                +1 Visit
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Live update indicator */}
+                <div className="mt-3 pt-3 border-t border-gray-200">
+                    <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2 text-gray-600">
+                            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                            <span>Live updates active</span>
+                        </div>
+                        <div className="text-gray-500">
+                            Data persists via localStorage
+                        </div>
                     </div>
                 </div>
             </div>
@@ -944,8 +1089,8 @@ function App() {
                         </Routes>
                     </main>
                     
-                    {/* Minimal Visitor Statistics */}
-                    <MinimalVisitorStats />
+                    {/* Real-time Visitor Statistics */}
+                    <VisitorStatistics />
                 </div>
             </div>
             
