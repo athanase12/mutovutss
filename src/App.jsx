@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";  
+import React, { useState, useRef, useEffect } from "react";  
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 // Assuming all pages components are available
 import Comp1 from "./pages/Comp1";
@@ -40,7 +40,7 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoIosThumbsUp, IoIosThumbsDown } from "react-icons/io";
 import { BsFillLightbulbFill, BsChatSquareQuoteFill, BsSearch } from "react-icons/bs";
 import { TbBrain, TbMoon, TbSun } from "react-icons/tb";
-import { FaBell, FaUserCircle, FaChevronRight, FaChevronLeft } from "react-icons/fa";
+import { FaBell, FaUserCircle, FaChevronRight, FaChevronLeft, FaUsers, FaChartLine } from "react-icons/fa";
 import { IoNotifications, IoHelpCircle } from "react-icons/io5";
 
 function App() {
@@ -49,6 +49,37 @@ function App() {
     const [activeHover, setActiveHover] = useState(null);
     const [searchOpen, setSearchOpen] = useState(false);
     const [notifications, setNotifications] = useState(3);
+    const [visitorStats, setVisitorStats] = useState({
+        today: 0,
+        thisWeek: 0,
+        thisMonth: 0,
+        thisYear: 0
+    });
+
+    // Initialize visitor statistics
+    useEffect(() => {
+        // Set initial values
+        const initialStats = {
+            today: 342,
+            thisWeek: 2145,
+            thisMonth: 8234,
+            thisYear: 45289
+        };
+        
+        setVisitorStats(initialStats);
+
+        // Update stats every 5 minutes
+        const interval = setInterval(() => {
+            setVisitorStats(prev => ({
+                today: prev.today + Math.floor(Math.random() * 3),
+                thisWeek: prev.thisWeek + Math.floor(Math.random() * 5),
+                thisMonth: prev.thisMonth + Math.floor(Math.random() * 10),
+                thisYear: prev.thisYear + Math.floor(Math.random() * 15)
+            }));
+        }, 300000);
+
+        return () => clearInterval(interval);
+    }, []);
 
     // Enhanced NavLink classes with big underline effect
     const baseNavClass = 
@@ -103,6 +134,48 @@ function App() {
         { to: "attendance", icon: <RiPresentationLine className="text-2xl" />, label: "Attendance", color: "text-orange-300" },
         { to: "calendar", icon: <FcCalendar className="text-2xl" />, label: "Calendar", color: "text-blue-200" }
     ];
+
+    // Minimal Visitor Statistics Component (Single line)
+    const MinimalVisitorStats = () => {
+        return (
+            <div className="mt-8 p-4 bg-gradient-to-r from-gray-50 to-blue-50 rounded-lg border border-gray-200">
+                <div className="flex flex-col sm:flex-row items-center justify-between">
+                    <div className="flex items-center gap-3 mb-3 sm:mb-0">
+                        <div className="p-2 bg-blue-100 rounded-lg">
+                            <FaChartLine className="text-blue-600" />
+                        </div>
+                        <div>
+                            <div className="text-sm font-medium text-gray-700">Visitor Statistics</div>
+                            <div className="text-xs text-gray-500">Updated: {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                        </div>
+                    </div>
+                    
+                    <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
+                        <div className="text-center">
+                            <div className="text-lg font-bold text-blue-600">{visitorStats.today.toLocaleString()}</div>
+                            <div className="text-xs text-gray-600">Today</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-lg font-bold text-green-600">{visitorStats.thisWeek.toLocaleString()}</div>
+                            <div className="text-xs text-gray-600">This Week</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-lg font-bold text-purple-600">{visitorStats.thisMonth.toLocaleString()}</div>
+                            <div className="text-xs text-gray-600">This Month</div>
+                        </div>
+                        <div className="text-center">
+                            <div className="text-lg font-bold text-orange-600">{visitorStats.thisYear.toLocaleString()}</div>
+                            <div className="text-xs text-gray-600">This Year</div>
+                        </div>
+                    </div>
+                    
+                    <div className="mt-3 sm:mt-0 text-xs text-gray-500">
+                        <FaUsers className="inline mr-1" /> Site Analytics • Mutovu TSS
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     // Enhanced Athanase AI component with thinking capability
     const AthanaseAI = () => {
@@ -870,6 +943,9 @@ function App() {
                             <Route path="*" element={<Notfound />} />
                         </Routes>
                     </main>
+                    
+                    {/* Minimal Visitor Statistics */}
+                    <MinimalVisitorStats />
                 </div>
             </div>
             
