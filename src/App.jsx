@@ -1,6 +1,7 @@
+// App.js
 import React, { useState, useRef, useEffect } from "react";  
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
-// Assuming all pages components are available
+import { BrowserRouter, Routes, Route, NavLink, Navigate, useNavigate } from 'react-router-dom';
+// Import all pages components
 import Attendance from "./pages/Attendance";
 import Comp1 from "./pages/Comp1";
 import Comp2 from "./pages/Comp2";
@@ -42,15 +43,337 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoIosThumbsUp, IoIosThumbsDown } from "react-icons/io";
 import { BsFillLightbulbFill, BsChatSquareQuoteFill, BsSearch } from "react-icons/bs";
 import { TbBrain, TbMoon, TbSun } from "react-icons/tb";
-import { FaBell, FaUserCircle, FaChevronRight, FaChevronLeft, FaUsers, FaChartLine } from "react-icons/fa";
+import { FaBell, FaUserCircle, FaChevronRight, FaChevronLeft, FaUsers, FaChartLine, FaLock, FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
 import { IoNotifications, IoHelpCircle } from "react-icons/io5";
 
+// Protected Route Component
+const ProtectedRoute = ({ children, isAuthenticated }) => {
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
+// Login Component
+const LoginPage = ({ setIsAuthenticated, setUserData }) => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [loginAttempts, setLoginAttempts] = useState(0);
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockTime, setLockTime] = useState(null);
+  const navigate = useNavigate();
+
+  // Valid credentials
+  const validCredentials = [
+    { username: "Athanase", password: "12345", role: "admin", name: "Athanase Admin" },
+    { username: "student", password: "mutovu123", role: "student", name: "Student User" },
+    { username: "teacher", password: "teach2025", role: "teacher", name: "Teacher User" },
+    { username: "parent", password: "parent123", role: "parent", name: "Parent User" }
+  ];
+
+  // Check if account is locked on component mount
+  useEffect(() => {
+    const lockedUntil = localStorage.getItem('login_locked_until');
+    const attempts = localStorage.getItem('login_attempts');
+    
+    if (lockedUntil) {
+      const now = new Date().getTime();
+      if (now < parseInt(lockedUntil)) {
+        setIsLocked(true);
+        setLockTime(parseInt(lockedUntil));
+      } else {
+        localStorage.removeItem('login_locked_until');
+        localStorage.removeItem('login_attempts');
+      }
+    }
+
+    if (attempts) {
+      setLoginAttempts(parseInt(attempts));
+    }
+  }, []);
+
+  // Update lock timer
+  useEffect(() => {
+    if (isLocked && lockTime) {
+      const timer = setInterval(() => {
+        const now = new Date().getTime();
+        if (now >= lockTime) {
+          setIsLocked(false);
+          setLoginAttempts(0);
+          localStorage.removeItem('login_locked_until');
+          localStorage.removeItem('login_attempts');
+          clearInterval(timer);
+        }
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [isLocked, lockTime]);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    
+    if (isLocked) {
+      const remainingTime = Math.ceil((lockTime - new Date().getTime()) / 1000);
+      setError(`Account locked. Please try again in ${remainingTime} seconds.`);
+      return;
+    }
+
+    if (!username.trim() || !password.trim()) {
+      setError("Please enter both username and password");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    const user = validCredentials.find(
+      cred => cred.username.toLowerCase() === username.toLowerCase() && 
+              cred.password === password
+    );
+
+    if (user) {
+      // Successful login
+      const sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
+      const userData = {
+        username: user.username,
+        name: user.name,
+        role: user.role,
+        sessionId,
+        loginTime: new Date().toISOString(),
+        lastActive: new Date().toISOString()
+      };
+      
+      localStorage.setItem('isAuthenticated', 'true');
+      localStorage.setItem('userData', JSON.stringify(userData));
+      localStorage.removeItem('login_attempts');
+      localStorage.removeItem('login_locked_until');
+      
+      setLoginAttempts(0);
+      setIsAuthenticated(true);
+      setUserData(userData);
+      
+      // Navigate to home
+      navigate("/", { replace: true });
+    } else {
+      // Failed login
+      const newAttempts = loginAttempts + 1;
+      setLoginAttempts(newAttempts);
+      localStorage.setItem('login_attempts', newAttempts.toString());
+      
+      if (newAttempts >= 5) {
+        // Lock account for 5 minutes
+        const lockUntil = new Date().getTime() + (5 * 60 * 1000);
+        localStorage.setItem('login_locked_until', lockUntil.toString());
+        setIsLocked(true);
+        setLockTime(lockUntil);
+        setError("Too many failed attempts. Account locked for 5 minutes.");
+      } else {
+        setError(`Invalid credentials. ${5 - newAttempts} attempts remaining.`);
+      }
+    }
+    
+    setLoading(false);
+  };
+
+  const formatTimeRemaining = () => {
+    if (!lockTime) return "0:00";
+    const now = new Date().getTime();
+    const diff = lockTime - now;
+    if (diff <= 0) return "0:00";
+    
+    const minutes = Math.floor(diff / 60000);
+    const seconds = Math.floor((diff % 60000) / 1000);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center p-4">
+      <div className="max-w-md w-full">
+        {/* Animated Background Effects */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-blob animation-delay-4000"></div>
+        </div>
+
+        {/* Login Card */}
+        <div className="relative bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 p-8">
+          {/* School Logo/Header */}
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full mb-4">
+              <FaLock className="text-3xl text-white" />
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-2">Mutovu TSS Portal</h1>
+            <p className="text-gray-300">Secure Login Access Required</p>
+          </div>
+
+          {/* Login Form */}
+          <form onSubmit={handleLogin} className="space-y-6">
+            {error && (
+              <div className={`p-4 rounded-xl ${isLocked ? 'bg-red-900/50 border border-red-700' : 'bg-red-500/20 border border-red-500/30'} text-white text-sm`}>
+                <div className="flex items-center gap-2">
+                  <FaLock className={isLocked ? 'animate-pulse' : ''} />
+                  <span>{error}</span>
+                </div>
+                {isLocked && (
+                  <div className="mt-2 flex items-center justify-between">
+                    <span className="text-xs">Time remaining:</span>
+                    <span className="font-mono font-bold">{formatTimeRemaining()}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Username Field */}
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                <FaUser />
+                <span>Username</span>
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  placeholder="Enter your username"
+                  disabled={loading || isLocked}
+                  autoComplete="username"
+                />
+              </div>
+            </div>
+
+            {/* Password Field */}
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-medium text-gray-300">
+                <FaLock />
+                <span>Password</span>
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 pr-12 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  placeholder="Enter your password"
+                  disabled={loading || isLocked}
+                  autoComplete="current-password"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-gray-400 hover:text-white transition-colors"
+                  disabled={loading || isLocked}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
+            </div>
+
+            {/* Demo Credentials */}
+            <div className="bg-blue-900/30 border border-blue-700/30 rounded-xl p-4">
+              <h3 className="text-sm font-medium text-blue-300 mb-2">Demo Credentials:</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div className="text-gray-300">
+                  <span className="font-medium">Username:</span> Athanase
+                  <br />
+                  <span className="font-medium">Password:</span> 12345
+                </div>
+                <div className="text-gray-300">
+                  <span className="font-medium">Username:</span> student
+                  <br />
+                  <span className="font-medium">Password:</span> mutovu123
+                </div>
+              </div>
+            </div>
+
+            {/* Login Button */}
+            <button
+              type="submit"
+              disabled={loading || isLocked || !username.trim() || !password.trim()}
+              className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 text-white py-3 px-4 rounded-xl font-medium hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg relative overflow-hidden group"
+            >
+              {loading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <AiOutlineLoading3Quarters className="animate-spin" />
+                  <span>Authenticating...</span>
+                </div>
+              ) : isLocked ? (
+                <span>Account Locked</span>
+              ) : (
+                <>
+                  <span className="relative z-10">Sign In</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
+                </>
+              )}
+            </button>
+
+            {/* Security Info */}
+            <div className="text-center text-xs text-gray-400 space-y-1">
+              <p>Secure access to Mutovu Technical Secondary School Portal</p>
+              <p>Attempts: {loginAttempts}/5 before lockout</p>
+            </div>
+          </form>
+
+          {/* Footer */}
+          <div className="mt-8 pt-6 border-t border-white/10 text-center">
+            <p className="text-xs text-gray-400">
+              © 2025 Mutovu TSS • All rights reserved
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              For assistance, contact IT support: it@mutovutss.edu.rw
+            </p>
+          </div>
+        </div>
+
+        {/* Security Badges */}
+        <div className="mt-6 flex justify-center gap-4">
+          <div className="flex items-center gap-2 text-xs text-gray-400">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span>SSL Secured</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs text-gray-400">
+            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <span>256-bit Encryption</span>
+          </div>
+        </div>
+      </div>
+
+      {/* CSS Animations */}
+      <style>{`
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+          animation: blob 7s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+// Main App Component
 function App() {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [userData, setUserData] = useState(null);
     const [darkMode, setDarkMode] = useState(true);
     const [collapsed, setCollapsed] = useState(false);
     const [activeHover, setActiveHover] = useState(null);
     const [searchOpen, setSearchOpen] = useState(false);
     const [notifications, setNotifications] = useState(3);
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     const [visitorStats, setVisitorStats] = useState({
         today: 0,
         thisWeek: 0,
@@ -60,8 +383,56 @@ function App() {
         lastUpdate: new Date()
     });
 
-    // Initialize visitor statistics from localStorage or set defaults
+    // Check authentication status on mount
     useEffect(() => {
+        const auth = localStorage.getItem('isAuthenticated');
+        const user = localStorage.getItem('userData');
+        
+        if (auth === 'true' && user) {
+            try {
+                const parsedUser = JSON.parse(user);
+                setIsAuthenticated(true);
+                setUserData(parsedUser);
+                
+                // Update last active time
+                parsedUser.lastActive = new Date().toISOString();
+                localStorage.setItem('userData', JSON.stringify(parsedUser));
+                setUserData(parsedUser);
+            } catch (error) {
+                console.error('Error parsing user data:', error);
+                handleLogout();
+            }
+        }
+        
+        // Auto logout after 8 hours of inactivity
+        const checkSession = () => {
+            if (user) {
+                try {
+                    const userObj = JSON.parse(user);
+                    const lastActive = new Date(userObj.lastActive).getTime();
+                    const now = new Date().getTime();
+                    const hoursDiff = (now - lastActive) / (1000 * 60 * 60);
+                    
+                    // Auto logout after 8 hours of inactivity
+                    if (hoursDiff > 8) {
+                        handleLogout();
+                    }
+                } catch (error) {
+                    handleLogout();
+                }
+            }
+        };
+        
+        checkSession();
+        const interval = setInterval(checkSession, 300000); // Check every 5 minutes
+        
+        return () => clearInterval(interval);
+    }, []);
+
+    // Initialize visitor statistics when authenticated
+    useEffect(() => {
+        if (!isAuthenticated) return;
+        
         const savedStats = localStorage.getItem('mutovu_tss_visitor_stats');
         const today = new Date();
         const todayKey = today.toDateString();
@@ -70,11 +441,9 @@ function App() {
             const parsedStats = JSON.parse(savedStats);
             const lastSavedDate = new Date(parsedStats.lastUpdate);
             
-            // Check if it's a new day
             if (lastSavedDate.toDateString() !== todayKey) {
-                // Reset daily count for new day
                 const newStats = {
-                    today: 1, // Start new day with 1 (current visit)
+                    today: 1,
                     thisWeek: parsedStats.thisWeek + 1,
                     thisMonth: parsedStats.thisMonth + 1,
                     thisYear: parsedStats.thisYear + 1,
@@ -84,7 +453,6 @@ function App() {
                 setVisitorStats(newStats);
                 localStorage.setItem('mutovu_tss_visitor_stats', JSON.stringify(newStats));
             } else {
-                // Same day, increment counts
                 const newStats = {
                     ...parsedStats,
                     today: parsedStats.today + 1,
@@ -98,7 +466,6 @@ function App() {
                 localStorage.setItem('mutovu_tss_visitor_stats', JSON.stringify(newStats));
             }
         } else {
-            // First time visitor
             const initialStats = {
                 today: 1,
                 thisWeek: 1,
@@ -110,18 +477,7 @@ function App() {
             setVisitorStats(initialStats);
             localStorage.setItem('mutovu_tss_visitor_stats', JSON.stringify(initialStats));
         }
-        const navItems = [
-            // ... other items
-            { 
-                to: "attendance", 
-                icon: <RiPresentationLine className="text-2xl" />, 
-                label: "Attendance", 
-                color: "text-orange-300" 
-            },
-            // ... other items
-        ];
 
-        // Simulate other users visiting (for demo purposes)
         const simulateOtherVisits = () => {
             setVisitorStats(prev => {
                 const newStats = {
@@ -137,13 +493,19 @@ function App() {
             });
         };
 
-        // Simulate visits every 30-90 seconds
         const interval = setInterval(simulateOtherVisits, 30000 + Math.random() * 60000);
-
         return () => clearInterval(interval);
-    }, []);
+    }, [isAuthenticated]);
 
-    // Function to manually trigger a new visit (for testing)
+    // Logout handler
+    const handleLogout = () => {
+        localStorage.removeItem('isAuthenticated');
+        localStorage.removeItem('userData');
+        setIsAuthenticated(false);
+        setUserData(null);
+        setShowLogoutConfirm(false);
+    };
+
     const recordNewVisit = () => {
         setVisitorStats(prev => {
             const newStats = {
@@ -160,7 +522,7 @@ function App() {
         });
     };
 
-    // Enhanced NavLink classes with big underline effect
+    // Enhanced NavLink classes
     const baseNavClass = 
         "flex font-semibold items-center gap-3 py-3 px-4 mx-3 rounded-xl " +
         "transition-all duration-300 ease-in-out cursor-pointer text-lg " +
@@ -170,7 +532,6 @@ function App() {
         `${baseNavClass} bg-blue-600 text-white shadow-lg shadow-blue-600/30 ` +
         `transform scale-[1.02] ring-1 ring-blue-400 font-bold ` +
         "before:absolute before:inset-0 before:bg-gradient-to-r before:from-white/10 before:to-transparent before:animate-pulse " +
-        // Big underline for active state
         "after:absolute after:bottom-0 after:left-0 after:w-full after:h-1 after:bg-yellow-400 after:shadow-lg after:shadow-yellow-400/50 " +
         "after:transform after:scale-x-100 after:transition-transform after:duration-500 after:origin-left";
 
@@ -179,46 +540,47 @@ function App() {
         `hover:bg-gray-800/50 hover:scale-[1.01] hover:shadow-md ` +
         "before:absolute before:inset-0 before:bg-gradient-to-r before:from-gray-700/0 before:via-gray-700/20 before:to-gray-700/0 " +
         "before:translate-x-[-100%] hover:before:translate-x-[100%] before:transition-transform before:duration-700 " +
-        // Enhanced hover underline effect
         "after:absolute after:bottom-0 after:left-0 after:w-full after:h-[3px] after:bg-gradient-to-r after:from-yellow-400 after:via-orange-400 after:to-yellow-400 " +
         "after:shadow-lg after:shadow-yellow-400/40 after:transform after:scale-x-0 after:transition-all after:duration-500 after:origin-left " +
         "hover:after:scale-x-100 hover:after:h-[4px] hover:after:shadow-xl hover:after:shadow-yellow-400/60 " +
-        // Add animated glow effect on hover
         "hover:after:animate-glow";
 
     const logoutClass = 
         "text-lg font-bold w-full mt-6 py-2 px-4 rounded-xl flex items-center justify-center gap-2 " +
         "text-white bg-red-600 hover:bg-red-700 transition duration-300 transform hover:scale-[1.02] shadow-lg ring-1 ring-red-400 " +
-        // Add underline effect to logout button too
         "relative overflow-hidden group " +
         "after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-white/50 after:transform after:scale-x-0 " +
         "after:transition-transform after:duration-300 hover:after:scale-x-100";
 
-    // Navigation items data with enhanced hover states
+    // Navigation items data with role-based access
     const navItems = [
-        { to: "/", icon: <CiHome className="text-2xl" />, label: "Home", color: "text-yellow-400" },
-        { to: "comp2/*", icon: <FcAbout className="text-2xl" />, label: "About", color: "text-blue-400" },
-        { to: "contact/*", icon: <MdContactPhone className="text-2xl" />, label: "Contact", color: "text-red-400" },
-        { to: "registration/*", icon: <MdOutlineAppRegistration className="text-2xl" />, label: "Registration", color: "text-cyan-400" },
-        { to: "courses/*", icon: <MdOutlineCastForEducation className="text-2xl" />, label: "Courses", color: "text-green-400" },
-        { to: "staff", icon: <VscOrganization className="text-2xl" />, label: "Staff", color: "text-purple-400" },
-        { to: "schedule/*", icon: <AiFillSchedule className="text-2xl" />, label: "Schedule", color: "text-blue-300" },
-        { to: "help", icon: <FaHandsHelping className="text-2xl" />, label: "Help", color: "text-orange-400" },
-        { to: "video", icon: <ImFileVideo className="text-2xl" />, label: "Video", color: "text-pink-400" },
-        { to: "athanase-ai", icon: <RiRobot2Line className="text-2xl" />, label: "Athanase AI", color: "text-green-300" },
-        { to: "form", icon: <IoSettingsOutline className="text-2xl" />, label: "Settings", color: "text-gray-300" },
-        { to: "use", icon: <GiPineapple className="text-2xl" />, label: "App Counter", color: "text-yellow-300" },
-        { to: "classnotes", icon: <GrDocumentPdf className="text-2xl" />, label: "Class Notes", color: "text-red-300" },
-        { to: "result", icon: <VscRepoFetch className="text-2xl" />, label: "Result Check", color: "text-green-500" },
-        { to: "attendance", icon: <RiPresentationLine className="text-2xl" />, label: "Attendance", color: "text-orange-300" },
-        { to: "calendar", icon: <FcCalendar className="text-2xl" />, label: "School Calendar", color: "text-blue-200" }
+        { to: "/", icon: <CiHome className="text-2xl" />, label: "Home", color: "text-yellow-400", roles: ['admin', 'student', 'teacher', 'parent'] },
+        { to: "comp2/*", icon: <FcAbout className="text-2xl" />, label: "About", color: "text-blue-400", roles: ['admin', 'student', 'teacher', 'parent'] },
+        { to: "contact/*", icon: <MdContactPhone className="text-2xl" />, label: "Contact", color: "text-red-400", roles: ['admin', 'student', 'teacher', 'parent'] },
+        { to: "registration/*", icon: <MdOutlineAppRegistration className="text-2xl" />, label: "Registration", color: "text-cyan-400", roles: ['admin', 'student'] },
+        { to: "courses/*", icon: <MdOutlineCastForEducation className="text-2xl" />, label: "Courses", color: "text-green-400", roles: ['admin', 'student', 'teacher', 'parent'] },
+        { to: "staff", icon: <VscOrganization className="text-2xl" />, label: "Staff", color: "text-purple-400", roles: ['admin', 'teacher'] },
+        { to: "schedule/*", icon: <AiFillSchedule className="text-2xl" />, label: "Schedule", color: "text-blue-300", roles: ['admin', 'student', 'teacher'] },
+        { to: "help", icon: <FaHandsHelping className="text-2xl" />, label: "Help", color: "text-orange-400", roles: ['admin', 'student', 'teacher', 'parent'] },
+        { to: "video", icon: <ImFileVideo className="text-2xl" />, label: "Video", color: "text-pink-400", roles: ['admin', 'student', 'teacher'] },
+        { to: "athanase-ai", icon: <RiRobot2Line className="text-2xl" />, label: "Athanase AI", color: "text-green-300", roles: ['admin', 'student', 'teacher', 'parent'] },
+        { to: "form", icon: <IoSettingsOutline className="text-2xl" />, label: "Settings", color: "text-gray-300", roles: ['admin'] },
+        { to: "use", icon: <GiPineapple className="text-2xl" />, label: "App Counter", color: "text-yellow-300", roles: ['admin', 'student', 'teacher'] },
+        { to: "classnotes", icon: <GrDocumentPdf className="text-2xl" />, label: "Class Notes", color: "text-red-300", roles: ['admin', 'student', 'teacher'] },
+        { to: "result", icon: <VscRepoFetch className="text-2xl" />, label: "Result Check", color: "text-green-500", roles: ['admin', 'student', 'teacher', 'parent'] },
+        { to: "attendance", icon: <RiPresentationLine className="text-2xl" />, label: "Attendance", color: "text-orange-300", roles: ['admin', 'teacher'] },
+        { to: "calendar", icon: <FcCalendar className="text-2xl" />, label: "School Calendar", color: "text-blue-200", roles: ['admin', 'student', 'teacher', 'parent'] }
     ];
+
+    // Filter nav items based on user role
+    const filteredNavItems = userData 
+        ? navItems.filter(item => item.roles.includes(userData.role))
+        : [];
 
     // Real-time Visitor Statistics Component
     const VisitorStatistics = () => {
         const [updateTime, setUpdateTime] = useState(new Date());
 
-        // Format time to show "Just now" or "X minutes ago"
         const formatTime = (date) => {
             const now = new Date();
             const diffMs = now - date;
@@ -237,7 +599,6 @@ function App() {
             return `${diffDays} days ago`;
         };
 
-        // Update time every minute
         useEffect(() => {
             const interval = setInterval(() => {
                 setUpdateTime(new Date());
@@ -253,7 +614,6 @@ function App() {
                             <div className="p-2 bg-blue-100 rounded-lg">
                                 <FaChartLine className="text-blue-600" />
                             </div>
-                            {/* Animated ping dot for live updates */}
                             <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-ping opacity-75"></div>
                             <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full"></div>
                         </div>
@@ -269,37 +629,24 @@ function App() {
                                 {visitorStats.today.toLocaleString()}
                             </div>
                             <div className="text-xs text-gray-600">Today</div>
-                            {/* Tooltip */}
-                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                                {visitorStats.today === 1 ? '1 visitor today' : `${visitorStats.today.toLocaleString()} visitors today`}
-                            </div>
                         </div>
                         <div className="text-center group relative">
                             <div className="text-lg font-bold text-green-600 group-hover:scale-110 transition-transform duration-300">
                                 {visitorStats.thisWeek.toLocaleString()}
                             </div>
                             <div className="text-xs text-gray-600">This Week</div>
-                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                                {visitorStats.thisWeek === 1 ? '1 visitor this week' : `${visitorStats.thisWeek.toLocaleString()} visitors this week`}
-                            </div>
                         </div>
                         <div className="text-center group relative">
                             <div className="text-lg font-bold text-purple-600 group-hover:scale-110 transition-transform duration-300">
                                 {visitorStats.thisMonth.toLocaleString()}
                             </div>
                             <div className="text-xs text-gray-600">This Month</div>
-                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                                {visitorStats.thisMonth === 1 ? '1 visitor this month' : `${visitorStats.thisMonth.toLocaleString()} visitors this month`}
-                            </div>
                         </div>
                         <div className="text-center group relative">
                             <div className="text-lg font-bold text-orange-600 group-hover:scale-110 transition-transform duration-300">
                                 {visitorStats.thisYear.toLocaleString()}
                             </div>
                             <div className="text-xs text-gray-600">This Year</div>
-                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
-                                {visitorStats.thisYear === 1 ? '1 visitor this year' : `${visitorStats.thisYear.toLocaleString()} visitors this year`}
-                            </div>
                         </div>
                     </div>
                     
@@ -307,18 +654,10 @@ function App() {
                         <div className="text-xs text-gray-500 flex items-center gap-2">
                             <FaUsers className="text-blue-500" />
                             <span>Total: {visitorStats.total.toLocaleString()} visits</span>
-                            {/* Hidden test button for development */}
-                            <button 
-                                onClick={recordNewVisit}
-                                className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded hover:bg-green-200 transition-colors hidden"
-                            >
-                                +1 Visit
-                            </button>
                         </div>
                     </div>
                 </div>
                 
-                {/* Live update indicator */}
                 <div className="mt-3 pt-3 border-t border-gray-200">
                     <div className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2 text-gray-600">
@@ -334,12 +673,12 @@ function App() {
         );
     };
 
-    // Enhanced Athanase AI component with thinking capability
+    // Enhanced Athanase AI component
     const AthanaseAI = () => {
         const [messages, setMessages] = useState([
             { 
                 id: 1, 
-                text: "Hello! I'm Athanase AI, your Mutovu TSS assistant. I can help with courses, registration, schedules, fees, results, and more. How can I assist you today?", 
+                text: `Hello ${userData?.name || userData?.username || 'User'}! I'm Athanase AI, your Mutovu TSS assistant. How can I help you today?`, 
                 sender: 'ai',
                 thinkingProcess: [],
                 feedback: null
@@ -364,7 +703,7 @@ function App() {
         ];
 
         // Scroll to bottom when messages update
-        React.useEffect(() => {
+        useEffect(() => {
             messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
         }, [messages]);
 
@@ -544,6 +883,11 @@ function App() {
             const responses = responseDatabase[bestMatch.category] || responseDatabase.default;
             let selectedResponse = responses[Math.floor(Math.random() * responses.length)];
             
+            // Personalize response for logged in user
+            if (userData && Math.random() > 0.5) {
+                selectedResponse = selectedResponse.replace('you', userData.name || 'you');
+            }
+            
             if (Math.random() > 0.7) {
                 const followUps = [
                     " Is there anything specific about this you'd like to know?",
@@ -639,7 +983,7 @@ function App() {
             setMessages([
                 { 
                     id: 1, 
-                    text: "Hello! I'm Athanase AI, your Mutovu TSS assistant. The chat has been cleared. How can I help you today?", 
+                    text: `Hello ${userData?.name || userData?.username || 'User'}! I'm Athanase AI, your Mutovu TSS assistant. The chat has been cleared. How can I help you today?`, 
                     sender: 'ai',
                     thinkingProcess: [],
                     feedback: null
@@ -912,21 +1256,68 @@ function App() {
         );
     };
 
+    // Logout Confirmation Modal
+    const LogoutConfirmation = () => (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+                <div className="text-center mb-6">
+                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <SlLogout className="text-3xl text-red-600" />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Confirm Logout</h3>
+                    <p className="text-gray-600">Are you sure you want to log out?</p>
+                </div>
+                
+                <div className="flex gap-3">
+                    <button
+                        onClick={() => setShowLogoutConfirm(false)}
+                        className="flex-1 py-3 px-4 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors font-medium"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleLogout}
+                        className="flex-1 py-3 px-4 bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-xl hover:from-red-700 hover:to-orange-700 transition-colors font-medium"
+                    >
+                        Log Out
+                    </button>
+                </div>
+                
+                <div className="mt-4 text-center text-xs text-gray-500">
+                    Session will be terminated immediately
+                </div>
+            </div>
+        </div>
+    );
+
+    // If not authenticated, show login page
+    if (!isAuthenticated) {
+        return (
+            <BrowserRouter>
+                <Routes>
+                    <Route path="/login" element={<LoginPage setIsAuthenticated={setIsAuthenticated} setUserData={setUserData} />} />
+                    <Route path="*" element={<Navigate to="/login" replace />} />
+                </Routes>
+            </BrowserRouter>
+        );
+    }
+
     return (
         <BrowserRouter> 
+            {showLogoutConfirm && <LogoutConfirmation />}
+            
             <div className="App sticky top-0 z-50"> 
                 <ScrollingText />
             </div>
             
             <div className="flex flex-col sm:flex-row min-h-screen">
-                {/* Enhanced Navigation with Big Underline Effects */}
+                {/* Navigation */}
                 <nav 
                     className={`flex flex-col ${collapsed ? 'w-20' : 'w-72 md:w-80'} py-6 
                                bg-green-900 text-white shadow-2xl z-40 flex-shrink-0 
                                transition-all duration-500 ease-in-out relative overflow-hidden 
                                border-r border-gray-700`}
                 >
-                    {/* Subtle Background Pattern */}
                     <div className="absolute inset-0 opacity-5">
                         <div className="absolute inset-0" style={{
                             backgroundImage: `radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 1px)`,
@@ -947,41 +1338,34 @@ function App() {
                             
                             {!collapsed && (
                                 <div className="flex items-center gap-2">
-                                    {/* Optional: Add notification bell */}
+                                    <div className="text-xs bg-blue-600 px-2 py-1 rounded-full">
+                                        {userData?.role.toUpperCase()}
+                                    </div>
                                 </div>
                             )}
                         </div>
 
-                        {/* School Logo/Title */}
-                        <div className={`flex items-center justify-center ${collapsed ? 'px-0' : 'px-4'} mb-6`}>
+                        {/* User Profile */}
+                        <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'} mb-6`}>
                             {collapsed ? (
-                                <div className="w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center relative group/logo">
-                                    <RiArrowDropDownFill className="text-2xl" />
-                                    <span className="absolute bottom-0 left-0 w-full h-1 bg-yellow-400 transform scale-x-0 group-hover/logo:scale-x-100 transition-transform duration-300"></span>
+                                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center relative group/logo">
+                                    <FaUserCircle className="text-2xl" />
                                 </div>
                             ) : (
-                                <div className="flex items-center gap-3">
-                                    {/* Optional: School logo and name */}
-                                </div>
+                                <>
+                                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+                                        <FaUserCircle className="text-3xl" />
+                                    </div>
+                                    <div>
+                                        <div className="font-bold">{userData?.name}</div>
+                                        <div className="text-xs text-gray-300">{userData?.role}</div>
+                                    </div>
+                                </>
                             )}
                         </div>
-
-                        {/* Search Bar */}
-                        {searchOpen && !collapsed && (
-                            <div className="mb-4">
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        placeholder="Search..."
-                                        className="w-full bg-gray-800 border border-gray-700 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    />
-                                    <BsSearch className="absolute left-3 top-2.5 text-gray-400" />
-                                </div>
-                            </div>
-                        )}
                     </div>
 
-                    {/* Enhanced Navigation Links */}
+                    {/* Navigation Links */}
                     <div className="relative z-10 px-3 flex-1 space-y-1 overflow-y-auto">
                         <div className="mb-4">
                             {!collapsed && (
@@ -992,12 +1376,11 @@ function App() {
                             )}
                             
                             <div className="space-y-1">
-                                {navItems.map((item, index) => (
+                                {filteredNavItems.map((item, index) => (
                                     <NavLink
                                         key={index}
                                         to={item.to}
                                         end={item.to === "/"}
-                                        onClick={(e) => item.label === "Staff" && e.preventDefault()}
                                         onMouseEnter={() => setActiveHover(index)}
                                         onMouseLeave={() => setActiveHover(null)}
                                         className={({ isActive }) => 
@@ -1017,56 +1400,47 @@ function App() {
                                                 )}
                                             </>
                                         )}
-                                        {!collapsed && item.label === "Staff" && (
-                                            <span className="text-xs bg-gray-700 px-2 py-0.5 rounded text-gray-300 group-hover:bg-gray-600 transition-colors">
-                                                Soon
-                                            </span>
-                                        )}
                                     </NavLink>
                                 ))}
                             </div>
                         </div>
                     </div>
 
-                    {/* Profile Section */}
+                    {/* Logout Section */}
                     <div className="relative z-10 px-4 mt-6">
                         {collapsed ? (
-                            <div className="flex justify-center">
-                                <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center relative group/profile">
-                                    <CgProfile className="text-2xl" />
-                                    <span className="absolute bottom-0 left-0 w-full h-1 bg-yellow-400 transform scale-x-0 group-hover/profile:scale-x-100 transition-transform duration-300"></span>
+                            <button 
+                                onClick={() => setShowLogoutConfirm(true)}
+                                className="w-full flex justify-center"
+                            >
+                                <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-700 transition-colors">
+                                    <SlLogout className="text-xl" />
                                 </div>
-                            </div>
+                            </button>
                         ) : (
                             <>
-                                <NavLink 
-                                    to="/logout-placeholder" 
+                                <button 
+                                    onClick={() => setShowLogoutConfirm(true)}
                                     className={logoutClass}
                                 >
-                                    <div className="relative">
-                                        <img src="passport.png" className="w-10 h-10 rounded-full"/>
-                                        {notifications > 0 && (
-                                            <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                                        )}
-                                    </div>
-                                    <span className="flex-1 text-left">Profile</span>
-                                    <IoNotifications className="text-2xl" />
-                                </NavLink>
+                                    <SlLogout className="text-2xl" />
+                                    <span className="flex-1 text-left">Logout</span>
+                                </button>
                                 
                                 <div className="mt-4 text-center">
                                     <p className="text-xs text-gray-500">
                                         Mutovu TSS © 2004-{new Date().getFullYear()}
                                     </p>
                                     <div className="flex items-center justify-center gap-2 mt-2">
-                                        <button className="text-xs text-gray-400 hover:text-white transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white/30 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300">
+                                        <button className="text-xs text-gray-400 hover:text-white transition-colors">
                                             <IoHelpCircle />
                                         </button>
                                         <span className="text-xs text-gray-400">|</span>
-                                        <button className="text-xs text-gray-400 hover:text-white transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white/30 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300">
+                                        <button className="text-xs text-gray-400 hover:text-white transition-colors">
                                             Privacy
                                         </button>
                                         <span className="text-xs text-gray-400">|</span>
-                                        <button className="text-xs text-gray-400 hover:text-white transition-colors relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-white/30 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300">
+                                        <button className="text-xs text-gray-400 hover:text-white transition-colors">
                                             Terms
                                         </button>
                                     </div>
@@ -1080,24 +1454,24 @@ function App() {
                 <div className="flex-grow p-4 sm:p-8 bg-gray-100 transition duration-500">
                     <main className='p-0 sm:p-4 mb-4'>
                         <Routes>
-                            <Route path="/" element={<Comp1 />} />
-                            <Route path="comp2/*" element={<Comp2 />} />
-                            <Route path="contact/*" element={<Contact />} />
-                            <Route path="/form" element={<Form />} />
-                            <Route path="/use" element={<Use />} />
-                            <Route path="registration/*" element={<Registration />} />
-                            <Route path="video/*" element={<VideoPlayer />} />
-                            <Route path="help" element={<Help />} />
-                            <Route path="courses/*" element={<Courses />} />
-                            <Route path="staff/*" element={<Staff />} />
-                            <Route path="schedule/*" element={<Schedule />} />
-                            <Route path="classnotes/*" element={<ClassNotes />} />
-                            <Route path="athanase-ai" element={<AthanaseAI />} />
-                            <Route path="dailyactivities" element={<DailyActivities />} />
-                            <Route path="timetable" element={<Timetable />} />
-                            <Route path="attendance" element={<Attendance />} />
-                            <Route path="calendar" element={<SchoolCalendar />} />
-                            <Route path="*" element={<Notfound />} />
+                            <Route path="/" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Comp1 /></ProtectedRoute>} />
+                            <Route path="comp2/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Comp2 /></ProtectedRoute>} />
+                            <Route path="contact/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Contact /></ProtectedRoute>} />
+                            <Route path="/form" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Form /></ProtectedRoute>} />
+                            <Route path="/use" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Use /></ProtectedRoute>} />
+                            <Route path="registration/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Registration /></ProtectedRoute>} />
+                            <Route path="video/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><VideoPlayer /></ProtectedRoute>} />
+                            <Route path="help" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Help /></ProtectedRoute>} />
+                            <Route path="courses/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Courses /></ProtectedRoute>} />
+                            <Route path="staff/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Staff /></ProtectedRoute>} />
+                            <Route path="schedule/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Schedule /></ProtectedRoute>} />
+                            <Route path="classnotes/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><ClassNotes /></ProtectedRoute>} />
+                            <Route path="athanase-ai" element={<ProtectedRoute isAuthenticated={isAuthenticated}><AthanaseAI /></ProtectedRoute>} />
+                            <Route path="dailyactivities" element={<ProtectedRoute isAuthenticated={isAuthenticated}><DailyActivities /></ProtectedRoute>} />
+                            <Route path="timetable" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Timetable /></ProtectedRoute>} />
+                            <Route path="attendance" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Attendance /></ProtectedRoute>} />
+                            <Route path="calendar" element={<ProtectedRoute isAuthenticated={isAuthenticated}><SchoolCalendar /></ProtectedRoute>} />
+                            <Route path="*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Notfound /></ProtectedRoute>} />
                         </Routes>
                     </main>
                     
@@ -1115,9 +1489,8 @@ function App() {
                     <span className="hidden sm:inline">•</span>
                     <span className="hidden sm:inline">All Rights Reserved</span>
                     <span className="hidden md:inline">•</span>
-                    <span className="hidden md:inline">Excellence Through Technical Education</span>
+                    <span className="hidden md:inline">Welcome, {userData?.name}!</span>
                 </div>
-                {/* Footer underline effect */}
                 <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 via-orange-400 to-yellow-400"></div>
             </footer>
         </BrowserRouter>
@@ -1138,5 +1511,4 @@ export default App;
     .hover\:after\:animate-glow:hover::after {
         animation: glow 1s ease-in-out infinite;
     }
-        
 `}</style>
