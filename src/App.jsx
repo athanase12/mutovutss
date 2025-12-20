@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { BrowserRouter, Routes, Route, NavLink, Navigate, useNavigate } from 'react-router-dom';
 // Import all pages components
 import MarksSearch from './components/MarksSearch';
-import StudentMarks from "./components/StudentMarks";
+import StudentMarks from "./pages/StudentMarks";
 import Attendance from "./pages/Attendance";
 import Comp1 from "./pages/Comp1";
 import Comp2 from "./pages/Comp2";
