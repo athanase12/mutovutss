@@ -2,6 +2,8 @@
 import React, { useState, useRef, useEffect } from "react";  
 import { BrowserRouter, Routes, Route, NavLink, Navigate, useNavigate } from 'react-router-dom';
 // Import all pages components
+import MarksSearch from './components/MarksSearch';
+import StudentMarks from "./components/StudentMarks";
 import Attendance from "./pages/Attendance";
 import Comp1 from "./pages/Comp1";
 import Comp2 from "./pages/Comp2";
@@ -673,7 +675,7 @@ function App() {
         );
     };
 
-    // Enhanced Athanase AI component
+     
     const AthanaseAI = () => {
         const [messages, setMessages] = useState([
             { 
@@ -692,7 +694,6 @@ function App() {
         const [aiMood, setAiMood] = useState('normal');
         const messagesEndRef = useRef(null);
 
-        // Thinking animation types
         const thinkingAnimations = [
             "Analyzing your question...",
             "Searching knowledge base...",
@@ -702,12 +703,12 @@ function App() {
             "Formulating best response..."
         ];
 
-        // Scroll to bottom when messages update
+       
         useEffect(() => {
             messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
         }, [messages]);
 
-        // Comprehensive response database
+      
         const responseDatabase = {
             greetings: [
                 "Hello! I'm Athanase AI, ready to help you with everything about Mutovu TSS.",
@@ -1325,7 +1326,7 @@ function App() {
                         }}></div>
                     </div>
                     
-                    {/* Navigation Header */}
+                
                     <div className="relative z-10 px-4 mb-0">
                         <div className="flex items-center justify-between mb-4">
                             <button 
@@ -1345,7 +1346,7 @@ function App() {
                             )}
                         </div>
 
-                        {/* User Profile */}
+                      
                         <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-3'} mb-6`}>
                             {collapsed ? (
                                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center relative group/logo">
@@ -1471,11 +1472,12 @@ function App() {
                             <Route path="timetable" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Timetable /></ProtectedRoute>} />
                             <Route path="attendance" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Attendance /></ProtectedRoute>} />
                             <Route path="calendar" element={<ProtectedRoute isAuthenticated={isAuthenticated}><SchoolCalendar /></ProtectedRoute>} />
+                            <Route path="result" element={<ProtectedRoute isAuthenticated={isAuthenticated}><StudentMarks /></ProtectedRoute>} />
                             <Route path="*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Notfound /></ProtectedRoute>} />
                         </Routes>
                     </main>
                     
-                    {/* Real-time Visitor Statistics */}
+                   
                     <VisitorStatistics />
                 </div>
             </div>
