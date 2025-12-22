@@ -1314,7 +1314,7 @@ function App() {
             <div className="flex flex-col sm:flex-row min-h-screen">
                 {/* Navigation */}
                 <nav 
-                    className={`flex flex-col ${collapsed ? 'w-20' : 'w-100 md:w-80'} py-6 
+                    className={`flex flex-col ${collapsed ? 'w-20' : 'w-100 sm:w-100 md:w-80'} py-6 
                                bg-green-900 text-white shadow-2xl z-40 flex-shrink-0 
                                transition-all duration-500 ease-in-out relative overflow-hidden 
                                border-r border-gray-700`}
