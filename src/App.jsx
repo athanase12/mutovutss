@@ -44,12 +44,88 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { IoIosThumbsUp, IoIosThumbsDown } from "react-icons/io";
 import { BsFillLightbulbFill, BsChatSquareQuoteFill, BsSearch } from "react-icons/bs";
 import { TbBrain, TbMoon, TbSun } from "react-icons/tb";
-import { FaBell, FaUserCircle, FaChevronRight, FaChevronLeft, FaUsers, FaChartLine, FaLock, FaUser, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaBell, FaUserCircle, FaChevronRight, FaChevronLeft, FaUsers, FaChartLine, FaLock, FaUser, FaEye, FaEyeSlash, FaBan, FaExclamationTriangle } from "react-icons/fa";
 import { IoNotifications, IoHelpCircle } from "react-icons/io5";
 
 // Protected Route Component
 const ProtectedRoute = ({ children, isAuthenticated }) => {
   return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
+// Staff Access Restricted Component
+const StaffAccessRestricted = () => {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      navigate("/", { replace: true });
+    }, 3000);
+    
+    return () => clearTimeout(timer);
+  }, [navigate]);
+
+  return (
+    <div className="min-h-[70vh] flex items-center justify-center p-4">
+      <div className="max-w-md w-full text-center">
+        <div className="bg-gradient-to-br from-red-50 to-orange-50 border-2 border-red-200 rounded-2xl p-8 shadow-xl">
+          <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center">
+            <FaExclamationTriangle className="text-3xl text-white" />
+          </div>
+          
+          <h1 className="text-3xl font-bold text-gray-800 mb-3">Access Restricted</h1>
+          
+          <div className="bg-white/70 rounded-xl p-4 mb-6 border border-red-100">
+            <div className="flex items-center justify-center gap-3 mb-3">
+              <FaLock className="text-red-500 text-xl" />
+              <span className="text-lg font-semibold text-red-600">Staff Directory Unavailable</span>
+            </div>
+            
+            <p className="text-gray-600 mb-4">
+              The Staff directory is currently undergoing maintenance and updates. 
+              This feature is temporarily unavailable to all users.
+            </p>
+            
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
+              <div className="flex items-center gap-2">
+                <FaExclamationTriangle />
+                <span className="font-medium">Notice:</span>
+              </div>
+              <p className="mt-1">For staff inquiries, please contact the administration office directly.</p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => navigate("/")}
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 px-4 rounded-xl font-medium hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg"
+            >
+              Return to Home
+            </button>
+            
+            <button
+              onClick={() => navigate("/contact")}
+              className="w-full bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 py-3 px-4 rounded-xl font-medium hover:from-gray-200 hover:to-gray-300 transition-all duration-300 border border-gray-300"
+            >
+              Contact Administration
+            </button>
+          </div>
+          
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <p className="text-sm text-gray-500">
+              Redirecting to home page in 3 seconds...
+            </p>
+            <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-red-500 h-2 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-6 text-center text-xs text-gray-500">
+          <p>Mutovu TSS Administration • Last updated: {new Date().toLocaleDateString()}</p>
+        </div>
+      </div>
+    </div>
+  );
 };
 
 // Login Component
@@ -546,6 +622,12 @@ function App() {
         "hover:after:scale-x-100 hover:after:h-[4px] hover:after:shadow-xl hover:after:shadow-yellow-400/60 " +
         "hover:after:animate-glow";
 
+    const disabledNavClass = 
+        `${baseNavClass} text-gray-400 cursor-not-allowed bg-gray-800/30 opacity-70 ` +
+        "hover:bg-gray-800/30 hover:scale-100 hover:shadow-none " +
+        "before:translate-x-[-100%] hover:before:translate-x-[-100%] " +
+        "after:scale-x-0 hover:after:scale-x-0";
+
     const logoutClass = 
         "text-lg font-bold w-full mt-6 py-2 px-4 rounded-xl flex items-center justify-center gap-2 " +
         "text-white bg-red-600 hover:bg-red-700 transition duration-300 transform hover:scale-[1.02] shadow-lg ring-1 ring-red-400 " +
@@ -560,7 +642,7 @@ function App() {
         { to: "contact/*", icon: <MdContactPhone className="text-2xl" />, label: "Contact", color: "text-red-400", roles: ['admin', 'student', 'teacher', 'parent'] },
         { to: "registration/*", icon: <MdOutlineAppRegistration className="text-2xl" />, label: "Registration", color: "text-cyan-400", roles: ['admin', 'student'] },
         { to: "courses/*", icon: <MdOutlineCastForEducation className="text-2xl" />, label: "Courses", color: "text-green-400", roles: ['admin', 'student', 'teacher', 'parent'] },
-        { to: "staff", icon: <VscOrganization className="text-2xl" />, label: "Staff", color: "text-purple-400", roles: ['admin', 'teacher'] },
+        { to: "staff", icon: <VscOrganization className="text-2xl" />, label: "Staff", color: "text-purple-400", roles: ['admin', 'student', 'teacher', 'parent'], disabled: true }, 
         { to: "schedule/*", icon: <AiFillSchedule className="text-2xl" />, label: "Schedule", color: "text-blue-300", roles: ['admin', 'student', 'teacher'] },
         { to: "help", icon: <FaHandsHelping className="text-2xl" />, label: "Help", color: "text-orange-400", roles: ['admin', 'student', 'teacher', 'parent'] },
         { to: "video", icon: <ImFileVideo className="text-2xl" />, label: "Video", color: "text-pink-400", roles: ['admin', 'student', 'teacher'] },
@@ -1377,32 +1459,62 @@ function App() {
                             )}
                             
                             <div className="space-y-1">
-                                {filteredNavItems.map((item, index) => (
-                                    <NavLink
-                                        key={index}
-                                        to={item.to}
-                                        end={item.to === "/"}
-                                        onMouseEnter={() => setActiveHover(index)}
-                                        onMouseLeave={() => setActiveHover(null)}
-                                        className={({ isActive }) => 
-                                            isActive ? activeNavClass : inactiveNavClass
-                                        }
-                                    >
-                                        <div className={`${item.color} transition-transform group-hover:scale-110 group-hover:rotate-3`}>
-                                            {item.icon}
-                                        </div>
-                                        {!collapsed && (
-                                            <>
-                                                <span className="flex-1 text-sm transition-all duration-300 group-hover:tracking-wide">
-                                                    {item.label}
-                                                </span>
-                                                {activeHover === index && (
-                                                    <FaChevronRight className="text-xs opacity-70 animate-pulse" />
+                                {filteredNavItems.map((item, index) => {
+                                    // Check if this is the Staff link and if it should be disabled for all users
+                                    const isStaffLink = item.label === "Staff";
+                                    
+                                    if (isStaffLink && item.disabled) {
+                                        return (
+                                            <div
+                                                key={index}
+                                                onMouseEnter={() => setActiveHover(index)}
+                                                onMouseLeave={() => setActiveHover(null)}
+                                                className={disabledNavClass}
+                                                title="Staff directory temporarily unavailable - Under maintenance"
+                                            >
+                                                <div className={`${item.color} opacity-50 relative`}>
+                                                    {item.icon}
+                                                    <FaBan className="absolute -top-1 -right-1 text-red-400 text-xs" />
+                                                </div>
+                                                {!collapsed && (
+                                                    <>
+                                                        <span className="flex-1 text-sm opacity-70">
+                                                            {item.label}
+                                                        </span>
+                                                        <FaExclamationTriangle className="text-xs text-yellow-400 animate-pulse" />
+                                                    </>
                                                 )}
-                                            </>
-                                        )}
-                                    </NavLink>
-                                ))}
+                                            </div>
+                                        );
+                                    }
+
+                                    return (
+                                        <NavLink
+                                            key={index}
+                                            to={item.to}
+                                            end={item.to === "/"}
+                                            onMouseEnter={() => setActiveHover(index)}
+                                            onMouseLeave={() => setActiveHover(null)}
+                                            className={({ isActive }) => 
+                                                isActive ? activeNavClass : inactiveNavClass
+                                            }
+                                        >
+                                            <div className={`${item.color} transition-transform group-hover:scale-110 group-hover:rotate-3`}>
+                                                {item.icon}
+                                            </div>
+                                            {!collapsed && (
+                                                <>
+                                                    <span className="flex-1 text-sm transition-all duration-300 group-hover:tracking-wide">
+                                                        {item.label}
+                                                    </span>
+                                                    {activeHover === index && (
+                                                        <FaChevronRight className="text-xs opacity-70 animate-pulse" />
+                                                    )}
+                                                </>
+                                            )}
+                                        </NavLink>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>
@@ -1464,7 +1576,7 @@ function App() {
                             <Route path="video/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><VideoPlayer /></ProtectedRoute>} />
                             <Route path="help" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Help /></ProtectedRoute>} />
                             <Route path="courses/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Courses /></ProtectedRoute>} />
-                            <Route path="staff/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Staff /></ProtectedRoute>} />
+                            <Route path="staff/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><StaffAccessRestricted /></ProtectedRoute>} />
                             <Route path="schedule/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Schedule /></ProtectedRoute>} />
                             <Route path="classnotes/*" element={<ProtectedRoute isAuthenticated={isAuthenticated}><ClassNotes /></ProtectedRoute>} />
                             <Route path="athanase-ai" element={<ProtectedRoute isAuthenticated={isAuthenticated}><AthanaseAI /></ProtectedRoute>} />
