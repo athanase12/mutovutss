@@ -131,7 +131,7 @@ const ScrollingText = () => {
           font-serif font-extrabold text-transparent bg-clip-text
           bg-gradient-to-b from-yellow-100 to-yellow-400
           drop-shadow-lg md:animate-bounce">
-          Welcome To Mutovu Technical Secondary School
+          Welcome To Mutovu Technical Secondary School.
         </div>
       </div>
 
@@ -142,3 +142,4 @@ const ScrollingText = () => {
 };
 
 export default ScrollingText;
+
